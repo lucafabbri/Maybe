@@ -8,4 +8,8 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Maybe\Maybe.csproj" />
+  </ItemGroup>
+
 </Project>

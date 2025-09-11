@@ -1,16 +1,11 @@
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-
 namespace Maybe;
 
 public static partial class MaybeExtensions
 {
     /// <summary>
-    /// Transforms the success value of a Maybe without leaving the Maybe context.
-    /// If the Maybe is an error, the error is propagated.
-    /// This is an alias for Map and is used to enable LINQ query syntax.
+    /// If the outcome is a success, applies a mapping function to the value, returning a new Maybe with the transformed value.
+    /// If the outcome is an error, the error is propagated.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Maybe<TNewValue, TError> Select<TValue, TError, TNewValue>(
         this in Maybe<TValue, TError> maybe,
         Func<TValue, TNewValue> selector)
@@ -22,19 +17,21 @@ public static partial class MaybeExtensions
     }
 
     /// <summary>
-    /// Transforms the success value of a Maybe without leaving the Maybe context.
-    /// If the Maybe is an error, the error is propagated.
-    /// This is an alias for Select.
+    /// If the outcome is a success, applies a mapping function to the value, returning a new Maybe with the transformed value.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Maybe<TNewValue, TError> Map<TValue, TError, TNewValue>(
-        this in Maybe<TValue, TError> maybe,
+    public static Maybe<TNewValue, Error> Select<TValue, TNewValue>(
+        this in Maybe<TValue> maybe,
         Func<TValue, TNewValue> selector)
-        where TError : IError =>
-        maybe.Select(selector);
+    {
+        Maybe<TValue, Error> fullMaybe = maybe;
+        var result = fullMaybe.Select(selector);
+        return result.IsSuccess
+            ? Maybe<TNewValue>.Some(result.ValueOrThrow())
+            : Maybe<TNewValue>.None(result.ErrorOrThrow());
+    }
 
     /// <summary>
-    /// Asynchronously transforms the success value of a Maybe without leaving the Maybe context.
+    /// Asynchronously applies a mapping function to the value of a Maybe, returning a new Maybe with the transformed value.
     /// </summary>
     public static async Task<Maybe<TNewValue, TError>> Select<TValue, TError, TNewValue>(
         this Task<Maybe<TValue, TError>> maybeTask,
@@ -46,32 +43,76 @@ public static partial class MaybeExtensions
     }
 
     /// <summary>
-    /// Asynchronously transforms the success value of a Maybe using an async selector function.
+    /// Asynchronously applies a mapping function to the value of a Maybe, returning a new Maybe with the transformed value.
     /// </summary>
-    public static async Task<Maybe<TNewValue, TError>> SelectAsync<TValue, TError, TNewValue>(
-        this Maybe<TValue, TError> maybe,
-        Func<TValue, Task<TNewValue>> selectorAsync)
-        where TError : IError
+    public static async Task<Maybe<TNewValue, Error>> Select<TValue, TNewValue>(
+        this Task<Maybe<TValue>> maybeTask,
+        Func<TValue, TNewValue> selector)
     {
-        if (maybe.IsError)
-        {
-            return Maybe<TNewValue, TError>.None(maybe.ErrorOrThrow());
-        }
-
-        var newValue = await selectorAsync(maybe.ValueOrThrow()).ConfigureAwait(false);
-        return Maybe<TNewValue, TError>.Some(newValue);
+        Maybe<TValue, Error> fullMaybe = await maybeTask.ConfigureAwait(false);
+        return fullMaybe.Select(selector);
     }
 
     /// <summary>
-    /// Asynchronously transforms the success value of a Maybe contained in a Task using an async selector function.
+    /// Asynchronously applies an asynchronous mapping function to the value of a Maybe, returning a new Maybe with the transformed value.
+    /// </summary>
+    public static async Task<Maybe<TNewValue, TError>> SelectAsync<TValue, TError, TNewValue>(
+        this Maybe<TValue, TError> maybe,
+        Func<TValue, Task<TNewValue>> selector)
+        where TError : IError
+    {
+        return maybe.IsSuccess
+            ? Maybe<TNewValue, TError>.Some(await selector(maybe.ValueOrThrow()).ConfigureAwait(false))
+            : Maybe<TNewValue, TError>.None(maybe.ErrorOrThrow());
+    }
+
+    /// <summary>
+    /// Asynchronously applies an asynchronous mapping function to the value of a Maybe, returning a new Maybe with the transformed value.
+    /// </summary>
+    public static async Task<Maybe<TNewValue, Error>> SelectAsync<TValue, TNewValue>(
+        this Maybe<TValue> maybe,
+        Func<TValue, Task<TNewValue>> selector)
+    {
+        Maybe<TValue, Error> fullMaybe = maybe;
+        var result = await fullMaybe.SelectAsync(selector).ConfigureAwait(false);
+        return result.IsSuccess
+            ? Maybe<TNewValue>.Some(result.ValueOrThrow())
+            : Maybe<TNewValue>.None(result.ErrorOrThrow());
+    }
+
+    /// <summary>
+    /// Asynchronously applies an asynchronous mapping function to the value of a Maybe, returning a new Maybe with the transformed value.
     /// </summary>
     public static async Task<Maybe<TNewValue, TError>> SelectAsync<TValue, TError, TNewValue>(
         this Task<Maybe<TValue, TError>> maybeTask,
-        Func<TValue, Task<TNewValue>> selectorAsync)
+        Func<TValue, Task<TNewValue>> selector)
         where TError : IError
     {
         var maybe = await maybeTask.ConfigureAwait(false);
-        return await maybe.SelectAsync(selectorAsync).ConfigureAwait(false);
+        return await maybe.SelectAsync(selector).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Asynchronously applies an asynchronous mapping function to the value of a Maybe, returning a new Maybe with the transformed value.
+    /// </summary>
+    public static async Task<Maybe<TNewValue, TError>> SelectAsync<TValue, TError, TNewValue>(
+        this Task<Maybe<TValue>> maybeTask,
+        Func<TValue, Task<TNewValue>> selector)
+        where TError : IError
+    {
+        var maybe = await maybeTask.ConfigureAwait(false);
+        Maybe<TValue, TError> fullMaybe = maybe.IsSuccess
+            ? Maybe<TValue, TError>.Some(maybe.ValueOrThrow())
+            : Maybe<TValue, TError>.None((TError)maybe.ErrorOrThrow());
+        return await fullMaybe.SelectAsync(selector).ConfigureAwait(false);
+    }
+
+    public static async Task<Maybe<TNewValue, Error>> SelectAsync<TValue, TNewValue>(
+        this Task<Maybe<TValue>> maybeTask,
+        Func<TValue, Task<TNewValue>> selector)
+    {
+        Maybe<TValue, Error> fullMaybe = await maybeTask.ConfigureAwait(false);
+        return await fullMaybe.SelectAsync(selector).ConfigureAwait(false);
     }
 }
 

@@ -58,12 +58,17 @@ public readonly record struct Deleted : IOutcome
 /// This type wraps the cached value.
 /// </summary>
 /// <typeparam name="T">The type of the cached value.</typeparam>
-public readonly record struct Cached<T>(T Value) : IOutcome
+public readonly record struct Cached<T> : IOutcome
 {
     /// <inheritdoc/>
-    // Note: The outcome type is 'Success' because caching is a form of successful retrieval.
-    // The information that it's cached is conveyed by the type `Cached<T>` itself.
     public OutcomeType Type => OutcomeType.Success;
+
+    public T? Value { get; }
+
+    public Cached(T value)
+    {
+        Value = value;
+    }
 }
 
 /// <summary>
