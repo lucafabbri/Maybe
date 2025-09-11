@@ -1,27 +1,16 @@
-namespace Maybe.Docs;
-
-/// <summary>
-/// Contains the raw source code of the README.md file for easy access and display.
-/// </summary>
-public static class ReadmeSource
-{
-    /// <summary>
-    /// The complete content of the README.md file.
-    /// </summary>
-    public const string Content = """
 <div align="center">
 
 <!-- TODO: Add a cool logo/icon for the library -->
-<img src="https://raw.githubusercontent.com/lucafabbri/maybe-logo.png" alt="drawing" width="200"/></br>
+<img src="https://raw.githubusercontent.com/lucafabbri/maybe/main/maybe_logo.png" alt="drawing" width="350"/></br>
 
 # Maybe
 
 [![NuGet](https://img.shields.io/nuget/v/Maybe.svg)](https://www.nuget.org/packages/Maybe)
-[![Build](https://github.com/your-repo/maybe/actions/workflows/build.yml/badge.svg)](https://github.com/your-repo/maybe/actions/workflows/build.yml) 
-[![codecov](https://codecov.io/gh/your-repo/maybe/branch/main/graph/badge.svg)](https://codecov.io/gh/your-repo/maybe)
+[![Build](https://github.com/lucafabbri/maybe/actions/workflows/build.yml/badge.svg)](https://github.com/lucafabbri/maybe/actions/workflows/build.yml) 
+[![codecov](https://codecov.io/gh/lucafabbri/maybe/branch/main/graph/badge.svg)](https://codecov.io/gh/lucafabbri/maybe)
 
-[![GitHub Stars](https://img.shields.io/github/stars/your-repo/maybe.svg)](https://github.com/your-repo/maybe/stargazers) 
-[![GitHub license](https://img.shields.io/github/license/your-repo/maybe)](https://github.com/your-repo/maybe/blob/main/LICENSE)
+[![GitHub Stars](https://img.shields.io/github/stars/lucafabbri/maybe.svg)](https://github.com/lucafabbri/maybe/stargazers) 
+[![GitHub license](https://img.shields.io/github/license/lucafabbri/maybe)](https://github.com/lucafabbri/maybe/blob/main/LICENSE)
 
 ---
 
@@ -366,7 +355,6 @@ If you have any questions, comments, or suggestions, please open an issue or cre
 
 # License 🪪
 
-This project is licensed under the terms of the [MIT](https://github.com/your-repo/maybe/blob/main/LICENSE) license.
-""";
-}
+This project is licensed under the terms of the [MIT](https://github.com/lucafabbri/maybe/blob/main/LICENSE) license.
+
 

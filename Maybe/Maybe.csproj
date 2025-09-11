@@ -1,9 +1,33 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
+
+  <PropertyGroup>
+    <!-- NuGet Package Settings -->
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>Fabbri.Maybe</PackageId>
+    <Version>0.0.1</Version>
+    <Authors>Luca Fabbri</Authors>
+    <Company>Luca Fabbri</Company>
+    <Description>An elegant, fluent, and intuitive way to handle operations that may succeed or fail, inspired by functional programming principles.</Description>
+    <Copyright>Copyright (c) Luca Fabbri 2025</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/lucafabbri/Maybe</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/lucafabbri/Maybe.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>maybe result outcome error-handling functional railway-oriented-programming fluent</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Include the README.md file in the NuGet package -->
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
 </Project>
