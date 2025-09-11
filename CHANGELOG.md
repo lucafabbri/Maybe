@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.1.0"></a>
+## [1.1.0](https://www.github.com/lucafabbri/Maybe/releases/tag/v1.1.0) (2025-09-11)
+
+### Features
+
+* adds mightbe extension for mapping ([4b9a50d](https://www.github.com/lucafabbri/Maybe/commit/4b9a50d7fd1a41ab4554460769b29505a907be90))
+
 <a name="1.0.0"></a>
 ## [1.0.0](https://www.github.com/lucafabbri/Maybe/releases/tag/v1.0.0) (2025-09-11)
 
