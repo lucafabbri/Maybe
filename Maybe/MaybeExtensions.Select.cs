@@ -9,7 +9,7 @@ public static partial class MaybeExtensions
     public static Maybe<TNewValue, TError> Select<TValue, TError, TNewValue>(
         this in Maybe<TValue, TError> maybe,
         Func<TValue, TNewValue> selector)
-        where TError : IError
+        where TError : Error
     {
         return maybe.IsSuccess
             ? Maybe<TNewValue, TError>.Some(selector(maybe.ValueOrThrow()))
@@ -36,7 +36,7 @@ public static partial class MaybeExtensions
     public static async Task<Maybe<TNewValue, TError>> Select<TValue, TError, TNewValue>(
         this Task<Maybe<TValue, TError>> maybeTask,
         Func<TValue, TNewValue> selector)
-        where TError : IError
+        where TError : Error
     {
         var maybe = await maybeTask.ConfigureAwait(false);
         return maybe.Select(selector);
@@ -59,7 +59,7 @@ public static partial class MaybeExtensions
     public static async Task<Maybe<TNewValue, TError>> SelectAsync<TValue, TError, TNewValue>(
         this Maybe<TValue, TError> maybe,
         Func<TValue, Task<TNewValue>> selector)
-        where TError : IError
+        where TError : Error
     {
         return maybe.IsSuccess
             ? Maybe<TNewValue, TError>.Some(await selector(maybe.ValueOrThrow()).ConfigureAwait(false))
@@ -86,7 +86,7 @@ public static partial class MaybeExtensions
     public static async Task<Maybe<TNewValue, TError>> SelectAsync<TValue, TError, TNewValue>(
         this Task<Maybe<TValue, TError>> maybeTask,
         Func<TValue, Task<TNewValue>> selector)
-        where TError : IError
+        where TError : Error
     {
         var maybe = await maybeTask.ConfigureAwait(false);
         return await maybe.SelectAsync(selector).ConfigureAwait(false);
@@ -98,7 +98,7 @@ public static partial class MaybeExtensions
     public static async Task<Maybe<TNewValue, TError>> SelectAsync<TValue, TError, TNewValue>(
         this Task<Maybe<TValue>> maybeTask,
         Func<TValue, Task<TNewValue>> selector)
-        where TError : IError
+        where TError : Error
     {
         var maybe = await maybeTask.ConfigureAwait(false);
         Maybe<TValue, TError> fullMaybe = maybe.IsSuccess

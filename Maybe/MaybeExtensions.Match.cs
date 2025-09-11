@@ -10,7 +10,7 @@ public static partial class MaybeExtensions
         this in Maybe<TValue, TError> maybe,
         Func<TValue, TResult> onSome,
         Func<TError, TResult> onNone)
-        where TError : IError
+        where TError : Error
     {
         return maybe.IsSuccess
             ? onSome(maybe.ValueOrThrow())
@@ -21,7 +21,7 @@ public static partial class MaybeExtensions
         this Task<Maybe<TValue, TError>> maybeTask,
         Func<TValue, TResult> onSome,
         Func<TError, TResult> onNone)
-        where TError : IError
+        where TError : Error
     {
         var maybe = await maybeTask.ConfigureAwait(false);
         return maybe.IsSuccess
@@ -58,7 +58,7 @@ public static partial class MaybeExtensions
         this Task<Maybe<TValue, TError>> maybeTask,
         Func<TValue, Task<TResult>> onSome,
         Func<TError, Task<TResult>> onNone)
-        where TError : IError
+        where TError : Error
     {
         var maybe = await maybeTask.ConfigureAwait(false);
         return await maybe.Match(onSome, onNone).ConfigureAwait(false);

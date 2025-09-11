@@ -10,7 +10,7 @@ public class MaybeExtensions_Select_Tests
     [Fact]
     public void Select_WhenSuccess_ReturnsTransformedValue()
     {
-        Maybe<User, Error> maybeUser = TestUser;
+        var maybeUser = TestUser.MightBe();
         var result = maybeUser.Select(u => u.Name);
         Assert.True(result.IsSuccess);
         Assert.Equal(TestUser.Name, result.ValueOrThrow());
@@ -19,7 +19,7 @@ public class MaybeExtensions_Select_Tests
     [Fact]
     public void Select_WhenError_PropagatesError()
     {
-        Maybe<User, Error> maybeUser = TestError;
+        var maybeUser = TestError.MightBe<User,Error>();
         var result = maybeUser.Select(u => u.Name);
         Assert.True(result.IsError);
         Assert.Equal(TestError, result.ErrorOrThrow());
@@ -28,7 +28,7 @@ public class MaybeExtensions_Select_Tests
     [Fact]
     public async Task Select_WhenTaskSuccess_ReturnsTransformedValue()
     {
-        var maybeTask = Task.FromResult((Maybe<User, Error>)TestUser);
+        var maybeTask = Task.FromResult(TestUser.MightBe());
         var result = await maybeTask.Select(u => u.Name);
         Assert.True(result.IsSuccess);
         Assert.Equal(TestUser.Name, result.ValueOrThrow());
@@ -37,7 +37,7 @@ public class MaybeExtensions_Select_Tests
     [Fact]
     public async Task Select_WhenTaskError_PropagatesError()
     {
-        var maybeTask = Task.FromResult((Maybe<User, Error>)TestError);
+        var maybeTask = Task.FromResult(TestError.MightBe<User>());
         var result = await maybeTask.Select(u => u.Name);
         Assert.True(result.IsError);
         Assert.Equal(TestError, result.ErrorOrThrow());
@@ -60,7 +60,7 @@ public class MaybeExtensions_Select_Tests
         Maybe<User> maybeUser = TestError;
         var result = maybeUser.Select(u => u.Name);
         Assert.True(result.IsError);
-        Assert.Equal(TestError, (Error)result.ErrorOrThrow());
+        Assert.Equal(TestError, result.ErrorOrThrow());
     }
 
     [Fact]

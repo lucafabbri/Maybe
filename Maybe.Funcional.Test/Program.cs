@@ -99,7 +99,7 @@ public static class Program
     }
 
     private static void PrintResult<TValue, TError>(Maybe<TValue, TError> result, string expected)
-        where TError : IError
+        where TError : Error
     {
         var outcome = result.Match(
             onSome: value => value?.ToString() ?? "null",

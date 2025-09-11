@@ -9,17 +9,29 @@ public static partial class MaybeExtensions
     public static Maybe<TNewValue, TError> Then<TValue, TError, TNewValue>(
         this in Maybe<TValue, TError> maybe,
         Func<TValue, Maybe<TNewValue, TError>> func)
-        where TError : IError
+        where TError : Error
     {
         return maybe.IsSuccess
             ? func(maybe.ValueOrThrow())
             : Maybe<TNewValue, TError>.None(maybe.ErrorOrThrow());
     }
 
+    public static Maybe<TValue, TError> Then<TValue, TError>(
+        this in Maybe<TValue> maybe,
+        Func<TValue, Maybe<TValue>> func)
+        where TError : Error
+    {
+        if(maybe.IsSuccess)
+        {
+            func(maybe.ValueOrThrow());
+        }
+        return (Maybe<TValue, TError>)maybe.ErrorOrThrow();
+    }
+
     public static Maybe<TNewValue> Then<TValue, TError, TNewValue>(
         this in Maybe<TValue, TError> maybe,
         Func<TValue, Maybe<TNewValue>> func)
-        where TError : IError
+        where TError : Error
     {
         if(maybe.IsSuccess)
         {
@@ -54,7 +66,7 @@ public static partial class MaybeExtensions
     public static async Task<Maybe<TNewValue, TError>> Then<TValue, TError, TNewValue>(
         this Task<Maybe<TValue, TError>> maybeTask,
         Func<TValue, Maybe<TNewValue, TError>> func)
-        where TError : IError
+        where TError : Error
     {
         var maybe = await maybeTask.ConfigureAwait(false);
         return maybe.Then(func);
@@ -63,7 +75,7 @@ public static partial class MaybeExtensions
     public static async Task<Maybe<TNewValue>> Then<TValue, TError, TNewValue>(
         this Task<Maybe<TValue, TError>> maybeTask,
         Func<TValue, Maybe<TNewValue>> func)
-        where TError : IError
+        where TError : Error
     {
         var maybe = await maybeTask.ConfigureAwait(false);
         return maybe.Then(func);
@@ -86,7 +98,7 @@ public static partial class MaybeExtensions
     public static async Task<Maybe<TNewValue, TError>> ThenAsync<TValue, TError, TNewValue>(
         this Maybe<TValue, TError> maybe,
         Func<TValue, Task<Maybe<TNewValue, TError>>> func)
-        where TError : IError
+        where TError : Error
     {
         return maybe.IsSuccess
             ? await func(maybe.ValueOrThrow()).ConfigureAwait(false)
@@ -120,7 +132,7 @@ public static partial class MaybeExtensions
     public static async Task<Maybe<TNewValue, TError>> ThenAsync<TValue, TError, TNewValue>(
         this Task<Maybe<TValue, TError>> maybeTask,
         Func<TValue, Task<Maybe<TNewValue, TError>>> func)
-        where TError : IError
+        where TError : Error
     {
         var maybe = await maybeTask.ConfigureAwait(false);
         return await maybe.ThenAsync(func).ConfigureAwait(false);

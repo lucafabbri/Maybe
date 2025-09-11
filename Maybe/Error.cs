@@ -3,18 +3,29 @@ namespace Maybe;
 /// <summary>
 /// Provides a default, concrete implementation of IError for common scenarios.
 /// </summary>
-public readonly struct Error : IError
+public class Error : IEquatable<Error>
 {
     /// <inheritdoc/>
-    public OutcomeType Type { get; }
+    public OutcomeType Type { get; protected set; }
 
     /// <inheritdoc/>
-    public string Code { get; }
+    public string Code { get; protected set; }
 
     /// <inheritdoc/>
-    public string Message { get; }
+    public string Message { get; protected set; }
 
-    private Error(OutcomeType type, string code, string message)
+    /// <inheritdoc/>
+    public int TimeStamp { get; } = (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+    public Error(Error other)
+    {
+        if(other == null) throw new ArgumentNullException(nameof(other));
+        Type = other.Type;
+        Code = other.Code;
+        Message = other.Message;
+    }
+
+    protected Error(OutcomeType type, string code, string message)
     {
         Type = type;
         Code = code;
@@ -46,4 +57,15 @@ public readonly struct Error : IError
 
     public static Error Forbidden(string code = "Default.Forbidden", string message = "A forbidden error has occurred.") =>
         new(OutcomeType.Forbidden, code, message);
+
+    public virtual bool Equals(Error other)
+    {
+        if (other is null) return false;
+        return TimeStamp == other.TimeStamp && Type == other.Type && Code == other.Code && Message == other.Message;
+    }
+
+    public override bool Equals(object? obj)
+    {
+        return obj?.GetType() == GetType() && obj is Error other && Equals(other);
+    }
 }

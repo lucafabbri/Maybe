@@ -9,7 +9,7 @@ public static partial class MaybeExtensions
     public static Maybe<TValue, TError> Recover<TValue, TError>(
         this in Maybe<TValue, TError> maybe,
         Func<TError, Maybe<TValue, TError>> recoveryFunc)
-        where TError : IError
+        where TError : Error
     {
         return maybe.IsError ? recoveryFunc(maybe.ErrorOrThrow()) : maybe;
     }
@@ -20,7 +20,7 @@ public static partial class MaybeExtensions
     public static Maybe<TValue, TError> Recover<TValue, TError>(
         this in Maybe<TValue> maybe,
         Func<TError, Maybe<TValue, TError>> recoveryFunc)
-        where TError : IError
+        where TError : Error
     {
         Maybe<TValue, TError> fullMaybe = maybe.IsSuccess
             ? Maybe<TValue, TError>.Some(maybe.ValueOrThrow())
@@ -42,7 +42,7 @@ public static partial class MaybeExtensions
     public static async Task<Maybe<TValue, TError>> Recover<TValue, TError>(
         this Task<Maybe<TValue, TError>> maybeTask,
         Func<TError, Maybe<TValue, TError>> recoveryFunc)
-        where TError : IError
+        where TError : Error
     {
         var maybe = await maybeTask.ConfigureAwait(false);
         return maybe.Recover(recoveryFunc);
@@ -54,7 +54,7 @@ public static partial class MaybeExtensions
     public static async Task<Maybe<TValue, TError>> Recover<TValue, TError>(
         this Task<Maybe<TValue>> maybeTask,
         Func<TError, Maybe<TValue, TError>> recoveryFunc)
-        where TError : IError
+        where TError : Error
     {
         var maybe = await maybeTask.ConfigureAwait(false);  
         Maybe<TValue, TError> fullMaybe = maybe.IsSuccess
@@ -77,7 +77,7 @@ public static partial class MaybeExtensions
     public static async Task<Maybe<TValue, TError>> RecoverAsync<TValue, TError>(
         this Maybe<TValue, TError> maybe,
         Func<TError, Task<Maybe<TValue, TError>>> recoveryFunc)
-        where TError : IError
+        where TError : Error
     {
         return maybe.IsError ? await recoveryFunc(maybe.ErrorOrThrow()).ConfigureAwait(false) : maybe;
     }
@@ -88,7 +88,7 @@ public static partial class MaybeExtensions
     public static async Task<Maybe<TValue, TError>> RecoverAsync<TValue, TError>(
         this Maybe<TValue> maybe,
         Func<TError, Task<Maybe<TValue, TError>>> recoveryFunc)
-        where TError : IError
+        where TError : Error
     {
         Maybe<TValue, TError> fullMaybe = maybe.IsSuccess
             ? Maybe<TValue, TError>.Some(maybe.ValueOrThrow())
@@ -110,7 +110,7 @@ public static partial class MaybeExtensions
     public static async Task<Maybe<TValue, TError>> RecoverAsync<TValue, TError>(
         this Task<Maybe<TValue, TError>> maybeTask,
         Func<TError, Task<Maybe<TValue, TError>>> recoveryFunc)
-        where TError : IError
+        where TError : Error
     {
         var maybe = await maybeTask.ConfigureAwait(false);
         return await maybe.RecoverAsync(recoveryFunc).ConfigureAwait(false);
@@ -122,7 +122,7 @@ public static partial class MaybeExtensions
     public static async Task<Maybe<TValue, TError>> RecoverAsync<TValue, TError>(
         this Task<Maybe<TValue>> maybeTask,
         Func<TError, Task<Maybe<TValue, TError>>> recoveryFunc)
-        where TError : IError
+        where TError : Error
     {
         var maybe = await maybeTask.ConfigureAwait(false);
         Maybe<TValue, TError> fullMaybe = maybe.IsSuccess

@@ -12,7 +12,7 @@ public static partial class MaybeExtensions
     public static TValue Else<TValue, TError>(
         this in Maybe<TValue, TError> maybe,
         TValue fallbackValue)
-        where TError : IError
+        where TError : Error
     {
         return maybe.IsSuccess
             ? maybe.ValueOrThrow()
@@ -38,7 +38,7 @@ public static partial class MaybeExtensions
     public static TValue Else<TValue, TError>(
         this in Maybe<TValue, TError> maybe,
         Func<TError, TValue> fallbackFunc)
-        where TError : IError
+        where TError : Error
     {
         return maybe.IsSuccess
             ? maybe.ValueOrThrow()
@@ -64,7 +64,7 @@ public static partial class MaybeExtensions
     public static async Task<TValue> Else<TValue, TError>(
         this Task<Maybe<TValue, TError>> maybeTask,
         TValue fallbackValue)
-        where TError : IError
+        where TError : Error
     {
         var maybe = await maybeTask.ConfigureAwait(false);
         return maybe.Else(fallbackValue);
@@ -88,7 +88,7 @@ public static partial class MaybeExtensions
     public static async Task<TValue> Else<TValue, TError>(
         this Task<Maybe<TValue, TError>> maybeTask,
         Func<TError, TValue> fallbackFunc)
-        where TError : IError
+        where TError : Error
     {
         var maybe = await maybeTask.ConfigureAwait(false);
         return maybe.Else(fallbackFunc);

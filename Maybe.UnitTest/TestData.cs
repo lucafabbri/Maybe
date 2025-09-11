@@ -7,11 +7,13 @@ public static class TestData
 {
     public record TestValue(int Id, string Name);
 
-    public record TestCustomError(string Detail) : IError
+    public class TestCustomError : Error    
     {
-        public OutcomeType Type => OutcomeType.Failure;
-        public string Code => "Test.Custom";
-        public string Message => "A custom test error occurred.";
+        public string Detail { get; }
+        public TestCustomError(string detail) : base(OutcomeType.Failure, "Test.Custom", "A custom test error.") 
+        { 
+            Detail = detail;
+        }
     }
 
     public static TestValue SuccessValue => new(1, "Success");

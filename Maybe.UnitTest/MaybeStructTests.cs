@@ -7,11 +7,13 @@ public class MaybeStructTests
 {
     // --- Test Data ---
     private record TestValue(int Id);
-    private record TestCustomError(string Detail) : IError
+    private class TestCustomError : Error
     {
-        public OutcomeType Type => OutcomeType.Failure;
-        public string Code => "Test.Custom";
-        public string Message => "A custom test error.";
+        public string Detail { get; }
+
+        public TestCustomError(string detail) : base(OutcomeType.Failure, "Test.Custom", "A custom test error.") { 
+            Detail = detail;
+        }
     }
 
     // --- Creation and State Tests ---

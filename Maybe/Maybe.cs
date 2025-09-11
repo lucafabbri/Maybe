@@ -32,7 +32,7 @@ public readonly struct Maybe<TValue>
 
     // --- Unsafe Accessors ---
     public TValue ValueOrThrow(string? message = null) => _innerMaybe.ValueOrThrow(message);
-    public IError ErrorOrThrow(string? message = null) => _innerMaybe.ErrorOrThrow(message);
+    public Error ErrorOrThrow(string? message = null) => _innerMaybe.ErrorOrThrow(message);
 
     // --- Safe Fallbacks ---
     public TValue? ValueOrDefault() => _innerMaybe.ValueOrDefault();
@@ -63,7 +63,7 @@ public readonly struct Maybe<TValue>
 /// <typeparam name="TValue">The type of the success value.</typeparam>
 /// <typeparam name="TError">The type of the error, which must implement IError.</typeparam>
 public readonly struct Maybe<TValue, TError>
-    where TError : IError
+    where TError : Error
 {
     private readonly TValue _value;
     private readonly TError _error;
@@ -163,6 +163,20 @@ public readonly struct Maybe<TValue, TError>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Maybe<TValue, TError> None(TError error) => new(error);
 
+    public static Maybe<TValue, TError> None(Error error)
+    {
+        if (error is TError typedError)
+        {
+            return new Maybe<TValue, TError>(typedError);
+        }
+        else
+        {
+            var builtError = (TError)Activator.CreateInstance(typeof(TError),error)!;
+            return new Maybe<TValue, TError>(builtError);
+        }
+
+    }
+
     /// <summary>
     /// Implicitly converts a success value to a Maybe outcome.
     /// </summary>
@@ -174,5 +188,7 @@ public readonly struct Maybe<TValue, TError>
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Maybe<TValue, TError>(TError error) => None(error);
+
+    public static explicit operator Maybe<TValue, TError>(Error error) => None(error);
 }
 

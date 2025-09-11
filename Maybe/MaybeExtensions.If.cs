@@ -8,7 +8,7 @@ public static partial class MaybeExtensions
     public static Maybe<TValue, TError> IfSome<TValue, TError>(
         this in Maybe<TValue, TError> maybe,
         Action<TValue> action)
-        where TError : IError
+        where TError : Error
     {
         if (maybe.IsSuccess)
         {
@@ -37,7 +37,7 @@ public static partial class MaybeExtensions
     public static Maybe<TValue, TError> IfNone<TValue, TError>(
         this in Maybe<TValue, TError> maybe,
         Action<TError> action)
-        where TError : IError
+        where TError : Error
     {
         if (maybe.IsError)
         {

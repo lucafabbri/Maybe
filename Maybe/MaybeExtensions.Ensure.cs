@@ -9,7 +9,7 @@ public static partial class MaybeExtensions
         this in Maybe<TValue, TError> maybe,
         Func<TValue, bool> predicate,
         TError error)
-        where TError : IError
+        where TError : Error
     {
         if (maybe.IsError)
         {
@@ -26,7 +26,7 @@ public static partial class MaybeExtensions
         this in Maybe<TValue> maybe,
         Func<TValue, bool> predicate,
         TError error)
-        where TError : IError
+        where TError : Error
     {
         Maybe<TValue, TError> fullMaybe = maybe.IsSuccess
             ? Maybe<TValue, TError>.Some(maybe.ValueOrThrow())
@@ -50,7 +50,7 @@ public static partial class MaybeExtensions
         this Task<Maybe<TValue, TError>> maybeTask,
         Func<TValue, bool> predicate,
         TError error)
-        where TError : IError
+        where TError : Error
     {
         var maybe = await maybeTask.ConfigureAwait(false);
         return maybe.Ensure(predicate, error);
@@ -63,7 +63,7 @@ public static partial class MaybeExtensions
         this Task<Maybe<TValue>> maybeTask,
         Func<TValue, bool> predicate,
         TError error)
-        where TError : IError
+        where TError : Error
     {
         var maybe = await maybeTask.ConfigureAwait(false);  
         Maybe<TValue, TError> fullMaybe = maybe.IsSuccess
@@ -91,7 +91,7 @@ public static partial class MaybeExtensions
         this Maybe<TValue, TError> maybe,
         Func<TValue, Task<bool>> predicate,
         TError error)
-        where TError : IError
+        where TError : Error
     {
         if (maybe.IsError)
         {
@@ -108,7 +108,7 @@ public static partial class MaybeExtensions
         this Maybe<TValue> maybe,
         Func<TValue, Task<bool>> predicate,
         TError error)
-        where TError : IError
+        where TError : Error
     {
         Maybe<TValue, TError> fullMaybe = maybe.IsSuccess
             ? Maybe<TValue, TError>.Some(maybe.ValueOrThrow())
@@ -132,7 +132,7 @@ public static partial class MaybeExtensions
         this Task<Maybe<TValue, TError>> maybeTask,
         Func<TValue, Task<bool>> predicate,
         TError error)
-        where TError : IError
+        where TError : Error
     {
         var maybe = await maybeTask.ConfigureAwait(false);
         return await maybe.EnsureAsync(predicate, error).ConfigureAwait(false);
@@ -145,7 +145,7 @@ public static partial class MaybeExtensions
         this Task<Maybe<TValue>> maybeTask,
         Func<TValue, Task<bool>> predicate,
         TError error)
-        where TError : IError
+        where TError : Error
     {
         var maybe = await maybeTask.ConfigureAwait(false);
         Maybe<TValue, TError> fullMaybe = maybe.IsSuccess
