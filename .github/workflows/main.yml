@@ -16,6 +16,7 @@ on:
 
 jobs:
   build-and-publish:
+    environment: Production
     runs-on: ubuntu-latest
     permissions:
       contents: write # Richiesto per creare una GitHub Release
