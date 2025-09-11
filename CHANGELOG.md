@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="0.1.0"></a>
+## [0.1.0](https://www.github.com/lucafabbri/Maybe/releases/tag/v0.1.0) (2025-09-11)
+
+### Features
+
+* Initial Version ([139060d](https://www.github.com/lucafabbri/Maybe/commit/139060d9ec762273c7599ecdfd3772816a661ee4))
+
 <a name="0.0.1"></a>
 ## [0.0.1](https://www.github.com/lucafabbri/Maybe/releases/tag/v0.0.1) (2025-09-11)
 

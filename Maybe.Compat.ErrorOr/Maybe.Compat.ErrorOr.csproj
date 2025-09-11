@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net8.0;net9.0</TargetFrameworks>
@@ -14,7 +14,7 @@
     <!-- NuGet Package Settings -->
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>FluentCoder.Maybe.Compat.ErrorOr</PackageId>
-    <Version>0.0.1</Version>
+    <Version>0.1.0</Version>
     <Authors>Luca Fabbri</Authors>
     <Company>Luca Fabbri</Company>
     <Description>A compatibility layer to use FluentCoder.Maybe with ErrorOr library.</Description>
