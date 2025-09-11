@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.2.0"></a>
+## [1.2.0](https://www.github.com/lucafabbri/Maybe/releases/tag/v1.2.0) (2025-09-11)
+
+### Features
+
+* define errors as base class ([e828135](https://www.github.com/lucafabbri/Maybe/commit/e828135dc75ba7b24643cbe951bec58353124490))
+
 <a name="1.1.0"></a>
 ## [1.1.0](https://www.github.com/lucafabbri/Maybe/releases/tag/v1.1.0) (2025-09-11)
 
