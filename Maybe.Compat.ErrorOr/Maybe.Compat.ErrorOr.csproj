@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
     <IsPackable>true</IsPackable>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
 
@@ -28,6 +29,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Maybe\Maybe.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Include the README.md file in the NuGet package -->
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
 </Project>
