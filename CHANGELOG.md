@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.5.0"></a>
+## [1.5.0](https://www.github.com/lucafabbri/Maybe/releases/tag/v1.5.0) (2025-09-12)
+
+### Features
+
+* adds ThenDo, ThenDoAsync, ElseDo, ElseDoAsync ([723cc2b](https://www.github.com/lucafabbri/Maybe/commit/723cc2b360b55e6c6387c1eb70ba5a55de50ff67))
+
 <a name="1.4.0"></a>
 ## [1.4.0](https://www.github.com/lucafabbri/Maybe/releases/tag/v1.4.0) (2025-09-12)
 
