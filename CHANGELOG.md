@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.3.0"></a>
+## [1.3.0](https://www.github.com/lucafabbri/Maybe/releases/tag/v1.3.0) (2025-09-12)
+
+### Features
+
+* adds coverage to extensions use cases ([44eec3d](https://www.github.com/lucafabbri/Maybe/commit/44eec3d90a4c7f3697a7b1c21d2f42314f45c683))
+
 <a name="1.2.0"></a>
 ## [1.2.0](https://www.github.com/lucafabbri/Maybe/releases/tag/v1.2.0) (2025-09-11)
 
