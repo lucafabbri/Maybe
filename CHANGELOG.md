@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.4.0"></a>
+## [1.4.0](https://www.github.com/lucafabbri/Maybe/releases/tag/v1.4.0) (2025-09-12)
+
+### Features
+
+* adds error-ergonomic Ensure overloads ([a8bd000](https://www.github.com/lucafabbri/Maybe/commit/a8bd000286c1a2d5c76eb3b604333142473f9f15))
+
 <a name="1.3.0"></a>
 ## [1.3.0](https://www.github.com/lucafabbri/Maybe/releases/tag/v1.3.0) (2025-09-12)
 
