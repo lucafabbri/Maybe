@@ -61,7 +61,7 @@ public class Error : IEquatable<Error>
     public virtual bool Equals(Error other)
     {
         if (other is null) return false;
-        return TimeStamp == other.TimeStamp && Type == other.Type && Code == other.Code && Message == other.Message;
+        return Type == other.Type && Code == other.Code;
     }
 
     public override bool Equals(object? obj)

@@ -1,55 +1,53 @@
 namespace Maybe;
 
+/// <summary>
+/// Provides extension methods for validating the success value of a Maybe.
+/// </summary>
 public static partial class MaybeExtensions
 {
+    #region Synchronous Ensure (Sync Predicate)
+
     /// <summary>
-    /// Ensures that the success value satisfies a given condition. If the condition is not met, returns the specified error.
+    /// If the outcome is a success, checks if the value satisfies a predicate. If not, it returns the provided error.
+    /// This method unifies the error channel to the base 'Error' type for type safety in chained calls.
     /// </summary>
-    public static Maybe<TValue, TError> Ensure<TValue, TError>(
+    public static Maybe<TValue> Ensure<TValue, TError>(
         this in Maybe<TValue, TError> maybe,
         Func<TValue, bool> predicate,
-        TError error)
+        Error error)
         where TError : Error
     {
         if (maybe.IsError)
         {
-            return maybe;
+            return maybe.ErrorOrThrow();
         }
 
-        return predicate(maybe.ValueOrThrow()) ? maybe : error;
+        return predicate(maybe.ValueOrThrow()) ? maybe.ValueOrThrow() : error;
     }
 
     /// <summary>
-    /// Ensures that the success value satisfies a given condition. If the condition is not met, returns the specified error.
+    /// If the outcome is a success, checks if the value satisfies a predicate. If not, it returns the provided error.
     /// </summary>
-    public static Maybe<TValue, TError> Ensure<TValue, TError>(
-        this in Maybe<TValue> maybe,
-        Func<TValue, bool> predicate,
-        TError error)
-        where TError : Error
-    {
-        Maybe<TValue, TError> fullMaybe = maybe.IsSuccess
-            ? Maybe<TValue, TError>.Some(maybe.ValueOrThrow())
-            : Maybe<TValue, TError>.None((TError)maybe.ErrorOrThrow());
-        return fullMaybe.Ensure(predicate, error);
-    }
-
-    public static Maybe<TValue, Error> Ensure<TValue>(
+    public static Maybe<TValue> Ensure<TValue>(
         this in Maybe<TValue> maybe,
         Func<TValue, bool> predicate,
         Error error)
     {
-        Maybe<TValue, Error> fullMaybe = maybe;
-        return fullMaybe.Ensure(predicate, error);
+        if (maybe.IsError)
+        {
+            return maybe.ErrorOrThrow();
+        }
+
+        return predicate(maybe.ValueOrThrow()) ? maybe.ValueOrThrow() : error;
     }
 
     /// <summary>
-    /// Asynchronously ensures that the success value satisfies a given condition.
+    /// Asynchronously awaits a Maybe and then applies the Ensure validation.
     /// </summary>
-    public static async Task<Maybe<TValue, TError>> Ensure<TValue, TError>(
+    public static async Task<Maybe<TValue>> Ensure<TValue, TError>(
         this Task<Maybe<TValue, TError>> maybeTask,
         Func<TValue, bool> predicate,
-        TError error)
+        Error error)
         where TError : Error
     {
         var maybe = await maybeTask.ConfigureAwait(false);
@@ -57,101 +55,83 @@ public static partial class MaybeExtensions
     }
 
     /// <summary>
-    /// Asynchronously ensures that the success value satisfies a given condition.
+    /// Asynchronously awaits a Maybe and then applies the Ensure validation.
     /// </summary>
-    public static async Task<Maybe<TValue, TError>> Ensure<TValue, TError>(
-        this Task<Maybe<TValue>> maybeTask,
-        Func<TValue, bool> predicate,
-        TError error)
-        where TError : Error
-    {
-        var maybe = await maybeTask.ConfigureAwait(false);  
-        Maybe<TValue, TError> fullMaybe = maybe.IsSuccess
-            ? Maybe<TValue, TError>.Some(maybe.ValueOrThrow())
-            : Maybe<TValue, TError>.None((TError)maybe.ErrorOrThrow());
-        return fullMaybe.Ensure(predicate, error);
-    }
-
-    /// <summary>
-    /// Asynchronously ensures that the success value satisfies a given condition.
-    /// </summary>
-    public static async Task<Maybe<TValue, Error>> Ensure<TValue>(
+    public static async Task<Maybe<TValue>> Ensure<TValue>(
         this Task<Maybe<TValue>> maybeTask,
         Func<TValue, bool> predicate,
         Error error)
     {
-        Maybe<TValue, Error> fullMaybe = await maybeTask.ConfigureAwait(false);
-        return fullMaybe.Ensure(predicate, error);
+        var maybe = await maybeTask.ConfigureAwait(false);
+        return maybe.Ensure(predicate, error);
     }
 
+    #endregion
+
+    #region Asynchronous Ensure (Async Predicate)
+
     /// <summary>
-    /// Asynchronously ensures that the success value satisfies a given asynchronous condition.
+    /// If the outcome is a success, asynchronously checks if the value satisfies a predicate. If not, returns the provided error.
     /// </summary>
-    public static async Task<Maybe<TValue, TError>> EnsureAsync<TValue, TError>(
+    public static async Task<Maybe<TValue>> EnsureAsync<TValue, TError>(
         this Maybe<TValue, TError> maybe,
-        Func<TValue, Task<bool>> predicate,
-        TError error)
+        Func<TValue, Task<bool>> predicateAsync,
+        Error error)
         where TError : Error
     {
         if (maybe.IsError)
         {
-            return maybe;
+            return maybe.ErrorOrThrow();
         }
 
-        return await predicate(maybe.ValueOrThrow()).ConfigureAwait(false) ? maybe : error;
+        return await predicateAsync(maybe.ValueOrThrow()).ConfigureAwait(false)
+            ? maybe.ValueOrThrow()
+            : error;
     }
 
     /// <summary>
-    /// Asynchronously ensures that the success value satisfies a given asynchronous condition.
+    /// If the outcome is a success, asynchronously checks if the value satisfies a predicate. If not, returns the provided error.
     /// </summary>
-    public static async Task<Maybe<TValue, TError>> EnsureAsync<TValue, TError>(
+    public static async Task<Maybe<TValue>> EnsureAsync<TValue>(
         this Maybe<TValue> maybe,
-        Func<TValue, Task<bool>> predicate,
-        TError error)
-        where TError : Error
-    {
-        Maybe<TValue, TError> fullMaybe = maybe.IsSuccess
-            ? Maybe<TValue, TError>.Some(maybe.ValueOrThrow())
-            : Maybe<TValue, TError>.None((TError)maybe.ErrorOrThrow());
-        return await fullMaybe.EnsureAsync(predicate, error).ConfigureAwait(false);
-    }
-
-    public static async Task<Maybe<TValue, Error>> EnsureAsync<TValue>(
-        this Maybe<TValue> maybe,
-        Func<TValue, Task<bool>> predicate,
+        Func<TValue, Task<bool>> predicateAsync,
         Error error)
     {
-        Maybe<TValue, Error> fullMaybe = maybe;
-        return await fullMaybe.EnsureAsync(predicate, error).ConfigureAwait(false);
+        if (maybe.IsError)
+        {
+            return maybe.ErrorOrThrow();
+        }
+
+        return await predicateAsync(maybe.ValueOrThrow()).ConfigureAwait(false)
+            ? maybe.ValueOrThrow()
+            : error;
     }
 
     /// <summary>
-    /// Asynchronously ensures that the success value satisfies a given asynchronous condition.
+    /// Asynchronously awaits a Maybe and then applies the asynchronous Ensure validation.
     /// </summary>
-    public static async Task<Maybe<TValue, TError>> EnsureAsync<TValue, TError>(
+    public static async Task<Maybe<TValue>> EnsureAsync<TValue, TError>(
         this Task<Maybe<TValue, TError>> maybeTask,
-        Func<TValue, Task<bool>> predicate,
-        TError error)
+        Func<TValue, Task<bool>> predicateAsync,
+        Error error)
         where TError : Error
     {
         var maybe = await maybeTask.ConfigureAwait(false);
-        return await maybe.EnsureAsync(predicate, error).ConfigureAwait(false);
+        return await maybe.EnsureAsync(predicateAsync, error).ConfigureAwait(false);
     }
 
     /// <summary>
-    /// Asynchronously ensures that the success value satisfies a given asynchronous condition.
+    /// Asynchronously awaits a Maybe and then applies the asynchronous Ensure validation.
     /// </summary>
-    public static async Task<Maybe<TValue, TError>> EnsureAsync<TValue, TError>(
+    public static async Task<Maybe<TValue>> EnsureAsync<TValue>(
         this Task<Maybe<TValue>> maybeTask,
-        Func<TValue, Task<bool>> predicate,
-        TError error)
-        where TError : Error
+        Func<TValue, Task<bool>> predicateAsync,
+        Error error)
     {
         var maybe = await maybeTask.ConfigureAwait(false);
-        Maybe<TValue, TError> fullMaybe = maybe.IsSuccess
-            ? Maybe<TValue, TError>.Some(maybe.ValueOrThrow())
-            : Maybe<TValue, TError>.None((TError)maybe.ErrorOrThrow());
-        return await fullMaybe.EnsureAsync(predicate, error).ConfigureAwait(false);
+        return await maybe.EnsureAsync(predicateAsync, error).ConfigureAwait(false);
     }
+
+    #endregion
 }
 
