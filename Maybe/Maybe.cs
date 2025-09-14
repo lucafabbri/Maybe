@@ -4,66 +4,12 @@ using System.Runtime.CompilerServices;
 namespace Maybe;
 
 /// <summary>
-/// A simplified version of Maybe that uses a Error type for failures.
-/// This provides a cleaner API for scenarios where a custom error type is not needed.
-/// </summary>
-/// <typeparam name="TValue">The type of the success value.</typeparam>
-public readonly struct Maybe<TValue>
-{
-    private readonly Maybe<TValue, Error> _innerMaybe;
-
-    private Maybe(TValue value) => _innerMaybe = Maybe<TValue, Error>.Some(value);
-    private Maybe(Error error) => _innerMaybe = Maybe<TValue, Error>.None(error);
-
-    /// <summary>
-    /// Gets a value indicating whether the outcome is a success.
-    /// </summary>
-    public bool IsSuccess => _innerMaybe.IsSuccess;
-
-    /// <summary>
-    /// Gets a value indicating whether the outcome is an error.
-    /// </summary>
-    public bool IsError => _innerMaybe.IsError;
-
-    /// <summary>
-    /// Gets the type of the outcome.
-    /// </summary>
-    public OutcomeType Type => _innerMaybe.Type;
-
-    // --- Unsafe Accessors ---
-    public TValue ValueOrThrow(string? message = null) => _innerMaybe.ValueOrThrow(message);
-    public Error ErrorOrThrow(string? message = null) => _innerMaybe.ErrorOrThrow(message);
-
-    // --- Safe Fallbacks ---
-    public TValue? ValueOrDefault() => _innerMaybe.ValueOrDefault();
-
-    public static Maybe<TValue> Some(TValue value) => new(value);
-
-    public static Maybe<TValue> None(Error error) => new(error);
-
-    // --- Implicit Conversions for seamless interoperability ---
-
-    /// <summary>
-    /// Implicitly converts a value to a successful Maybe.
-    /// </summary>
-    public static implicit operator Maybe<TValue>(TValue value) => new(value);
-
-    /// <summary>
-    /// Implicitly converts a Error to a failed Maybe.
-    /// </summary>
-    public static implicit operator Maybe<TValue>(Error error) => new(error);
-    
-    public static implicit operator Maybe<TValue, Error>(Maybe<TValue> maybe) => maybe._innerMaybe;
-
-}
-
-/// <summary>
 /// Represents the outcome of an operation, which can be either a success value or an error.
 /// </summary>
 /// <typeparam name="TValue">The type of the success value.</typeparam>
 /// <typeparam name="TError">The type of the error, which must implement IError.</typeparam>
-public readonly struct Maybe<TValue, TError>
-    where TError : Error
+public partial struct Maybe<TValue, TError>
+    where TError : Error, new()
 {
     private readonly TValue _value;
     private readonly TError _error;
@@ -188,7 +134,5 @@ public readonly struct Maybe<TValue, TError>
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Maybe<TValue, TError>(TError error) => None(error);
-
-    public static explicit operator Maybe<TValue, TError>(Error error) => None(error);
 }
 

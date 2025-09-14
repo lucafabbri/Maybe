@@ -14,19 +14,7 @@ public static partial class MaybeExtensions
     public static TValue Else<TValue, TError>(
         this in Maybe<TValue, TError> maybe,
         TValue fallbackValue)
-        where TError : Error
-    {
-        return maybe.IsSuccess
-            ? maybe.ValueOrThrow()
-            : fallbackValue;
-    }
-
-    /// <summary>
-    /// Returns the success value or, if the Maybe is an error, the provided fallback value.
-    /// </summary>
-    public static TValue Else<TValue>(
-        this in Maybe<TValue> maybe,
-        TValue fallbackValue)
+        where TError : Error, new()
     {
         return maybe.IsSuccess
             ? maybe.ValueOrThrow()
@@ -39,19 +27,7 @@ public static partial class MaybeExtensions
     public static TValue Else<TValue, TError>(
         this in Maybe<TValue, TError> maybe,
         Func<TError, TValue> fallbackFunc)
-        where TError : Error
-    {
-        return maybe.IsSuccess
-            ? maybe.ValueOrThrow()
-            : fallbackFunc(maybe.ErrorOrThrow());
-    }
-
-    /// <summary>
-    /// Returns the success value or, if the Maybe is an error, the result of the provided fallback function.
-    /// </summary>
-    public static TValue Else<TValue>(
-        this in Maybe<TValue> maybe,
-        Func<Error, TValue> fallbackFunc)
+        where TError : Error, new()
     {
         return maybe.IsSuccess
             ? maybe.ValueOrThrow()
@@ -68,18 +44,7 @@ public static partial class MaybeExtensions
     public static async Task<TValue> Else<TValue, TError>(
         this Task<Maybe<TValue, TError>> maybeTask,
         TValue fallbackValue)
-        where TError : Error
-    {
-        var maybe = await maybeTask.ConfigureAwait(false);
-        return maybe.Else(fallbackValue);
-    }
-
-    /// <summary>
-    /// Asynchronously returns the success value or, if the Maybe is an error, the provided fallback value.
-    /// </summary>
-    public static async Task<TValue> Else<TValue>(
-        this Task<Maybe<TValue>> maybeTask,
-        TValue fallbackValue)
+        where TError : Error, new()
     {
         var maybe = await maybeTask.ConfigureAwait(false);
         return maybe.Else(fallbackValue);
@@ -91,18 +56,7 @@ public static partial class MaybeExtensions
     public static async Task<TValue> Else<TValue, TError>(
         this Task<Maybe<TValue, TError>> maybeTask,
         Func<TError, TValue> fallbackFunc)
-        where TError : Error
-    {
-        var maybe = await maybeTask.ConfigureAwait(false);
-        return maybe.Else(fallbackFunc);
-    }
-
-    /// <summary>
-    /// Asynchronously returns the success value or, if the Maybe is an error, the result of the provided fallback function.
-    /// </summary>
-    public static async Task<TValue> Else<TValue>(
-        this Task<Maybe<TValue>> maybeTask,
-        Func<Error, TValue> fallbackFunc)
+        where TError : Error, new()
     {
         var maybe = await maybeTask.ConfigureAwait(false);
         return maybe.Else(fallbackFunc);
@@ -118,19 +72,7 @@ public static partial class MaybeExtensions
     public static Task<TValue> ElseAsync<TValue, TError>(
         this Maybe<TValue, TError> maybe,
         Func<TError, Task<TValue>> fallbackAsync)
-        where TError : Error
-    {
-        return maybe.IsSuccess
-            ? Task.FromResult(maybe.ValueOrThrow())
-            : fallbackAsync(maybe.ErrorOrThrow());
-    }
-
-    /// <summary>
-    /// Returns the success value or, if the Maybe is an error, asynchronously executes the fallback function and returns its result.
-    /// </summary>
-    public static Task<TValue> ElseAsync<TValue>(
-        this Maybe<TValue> maybe,
-        Func<Error, Task<TValue>> fallbackAsync)
+        where TError : Error, new()
     {
         return maybe.IsSuccess
             ? Task.FromResult(maybe.ValueOrThrow())
@@ -143,18 +85,7 @@ public static partial class MaybeExtensions
     public static async Task<TValue> ElseAsync<TValue, TError>(
         this Task<Maybe<TValue, TError>> maybeTask,
         Func<TError, Task<TValue>> fallbackAsync)
-        where TError : Error
-    {
-        var maybe = await maybeTask.ConfigureAwait(false);
-        return await maybe.ElseAsync(fallbackAsync).ConfigureAwait(false);
-    }
-
-    /// <summary>
-    /// Asynchronously returns the success value or, if the Maybe is an error, asynchronously executes the fallback function and returns its result.
-    /// </summary>
-    public static async Task<TValue> ElseAsync<TValue>(
-        this Task<Maybe<TValue>> maybeTask,
-        Func<Error, Task<TValue>> fallbackAsync)
+        where TError : Error, new()
     {
         var maybe = await maybeTask.ConfigureAwait(false);
         return await maybe.ElseAsync(fallbackAsync).ConfigureAwait(false);

@@ -8,12 +8,30 @@ namespace Maybe.Tests.Exts;
 public record User(int Id, string Name, bool IsActive);
 public record Profile(string Email);
 
-public class UserNotFoundError : Error { public UserNotFoundError() : base(OutcomeType.NotFound, "User.NotFound", "The user was not found.") { } public UserNotFoundError(Error other) : base(other) { } }
-public class PermissionsError : Error { public PermissionsError() : base(OutcomeType.Forbidden, "Permissions.Denied", "Permission denied.") { } public PermissionsError(Error other) : base(other) { } }
-public class CacheError : Error { public CacheError() : base(OutcomeType.Failure, "Cache.Miss", "Could not find user in cache.") { } public CacheError(Error other) : base(other) { } }
-public class ValidationError : Error { public ValidationError() : base(OutcomeType.Validation, "Name.Invalid", "User name is invalid") { } public ValidationError(Error other) : base(other) { } }
-
-public static class IntExtensions { public static Maybe<int> MightBe(this int value) => value; }
+public class UserNotFoundError : Error
+{
+    public override OutcomeType Type => OutcomeType.NotFound;
+    public override string Code => "User.NotFound";
+    public override string Message => "The user was not found.";
+}
+public class PermissionsError : Error
+{
+    public override OutcomeType Type => OutcomeType.Forbidden;
+    public override string Code => "Permissions.Denied";
+    public override string Message => "Permission denied.";
+}
+public class CacheError : Error
+{
+    public override OutcomeType Type => OutcomeType.Failure;
+    public override string Code => "Cache.Miss";
+    public override string Message => "Could not find user in cache.";
+}
+public class ValidationError : Error
+{
+    public override OutcomeType Type => OutcomeType.Validation;
+    public override string Code => "Name.Invalid";
+    public override string Message => "User name is invalid";
+}
 
 public static class Api
 {

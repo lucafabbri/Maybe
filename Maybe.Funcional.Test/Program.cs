@@ -12,27 +12,28 @@ public record Profile(string Email);
 // CORRECTED: Added copy constructors to all error types for safe propagation
 public class UserNotFoundError : Error
 {
-	public UserNotFoundError() : base(OutcomeType.NotFound, "User.NotFound", "The user was not found.") { }
-	public UserNotFoundError(Error other) : base(other) { }
+    public override OutcomeType Type => OutcomeType.NotFound;
+    public override string Code => "User.NotFound";
+    public override string Message => "The user was not found.";
 }
 public class PermissionsError : Error
 {
-	public PermissionsError() : base(OutcomeType.Forbidden, "Permissions.Denied", "Permission denied.") { }
-	public PermissionsError(Error other) : base(other) { }
+	public override OutcomeType Type => OutcomeType.Forbidden;
+	public override string Code => "Permissions.Denied";
+	public override string Message => "Permission denied.";
 }
 public class CacheError : Error
 {
-	public CacheError() : base(OutcomeType.Failure, "Cache.Miss", "Could not find user in cache.") { }
-	public CacheError(Error other) : base(other) { }
+	public override OutcomeType Type => OutcomeType.Failure;
+	public override string Code => "Cache.Miss";
+	public override string Message => "Could not find user in cache.";
 }
 public class ValidationError : Error
 {
-	public ValidationError() : base(OutcomeType.Validation, "Name.Invalid", "User name is invalid") { }
-	public ValidationError(Error other) : base(other) { }
+	public override OutcomeType Type => OutcomeType.Validation;
+	public override string Code => "Name.Invalid";
+	public override string Message => "User name is invalid";
 }
-
-
-public static class IntExtensions { public static Maybe<int> MightBe(this int value) => value; }
 
 public static class Api
 {
@@ -77,8 +78,21 @@ public static class Api
 public static class Program
 {
 	public static async Task Main()
-	{
-		Console.WriteLine("--- Testing Successful Path (User 1) ---\n");
+    {
+
+        var rootCause = Error.NotFound("Database.UserNotFound", "User with ID 123 not found.");
+        // Attendo un secondo per rendere i timestamp diversi
+        System.Threading.Thread.Sleep(1000);
+        var serviceError = Error.Failure("Service.GetUser", "Failed to retrieve user. While we tries to open the connection everything exploded.", rootCause);
+        System.Threading.Thread.Sleep(1000);
+        var apiError = Error.Unexpected("Api.Controller", "Error processing request.", serviceError);
+
+        // --- TEST DEI LAYOUT ---
+
+        Console.WriteLine("--- Layout: Flat ---");
+        Console.WriteLine(apiError.ToFullString());
+
+        Console.WriteLine("--- Testing Successful Path (User 1) ---\n");
 		await TestAllScenarios(1);
 
 		Console.WriteLine("\n\n--- Testing Failure Path (User 2) ---\n");
@@ -132,9 +146,10 @@ public static class Program
 		PrintResult(finalResult, GetExpected(userId, "AccessGranted:ALICE", "User.Inactive", "FallbackPermission"));
 
 		Console.WriteLine($"---------- FINISHED TESTS FOR USER ID: {userId} ----------\n");
-	}
 
-	private static string GetExpected(int userId, string success, string user2_fail, string user3_fail)
+    }
+
+    private static string GetExpected(int userId, string success, string user2_fail, string user3_fail)
 	{
 		if (userId == 1) return success;
 		if (userId == 2) return $"Error: {user2_fail}";
@@ -142,16 +157,7 @@ public static class Program
 	}
 
 	private static void PrintResult<TValue, TError>(Maybe<TValue, TError> result, string expected)
-		where TError : Error
-	{
-		var outcome = result.Match(
-			onSome: value => value?.ToString() ?? "null",
-			onNone: error => $"Error: {error.Code}"
-		);
-		PrintOutcome(outcome, expected);
-	}
-
-	private static void PrintResult<TValue>(Maybe<TValue> result, string expected)
+		where TError : Error, new()
 	{
 		var outcome = result.Match(
 			onSome: value => value?.ToString() ?? "null",

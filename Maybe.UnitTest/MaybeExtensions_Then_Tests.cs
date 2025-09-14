@@ -5,7 +5,7 @@ namespace Maybe.Tests;
 
 public class MaybeExtensions_Then_Tests
 {
-    private Maybe<string> SuccessFunc(TestValue value) => $"Processed: {value.Name}";
+    private Maybe<string, Error> SuccessFunc(TestValue value) => $"Processed: {value.Name}";
     private Maybe<string> ErrorFunc(TestValue value) => TestError;
     private Task<Maybe<string>> SuccessAsyncFunc(TestValue value) => Task.FromResult((Maybe<string>)$"Processed: {value.Name}");
     private Task<Maybe<string>> ErrorAsyncFunc(TestValue value) => Task.FromResult((Maybe<string>)TestError);
