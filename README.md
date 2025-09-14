@@ -15,7 +15,7 @@
 
 ### An elegant, fluent, and intuitive way to handle operations that may succeed or fail.
 
-`dotnet add package Maybe`
+`dotnet add package FluentCoder.Maybe`
 
 </div>
 
