@@ -48,7 +48,7 @@ jobs:
           dotnet test Maybe.sln 
           --no-build 
           --configuration Release 
-          --collect:""XPlat Code Coverage"" 
+          --collect:"XPlat Code Coverage"
           --results-directory ./coverage
 
       # 6. Carica il report di coverage su Codecov --- NUOVO STEP ---
