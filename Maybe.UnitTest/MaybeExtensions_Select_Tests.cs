@@ -1,74 +1,151 @@
-﻿using Xunit;
-using static Maybe.Tests.TestData;
+﻿using FluentAssertions;
+using Maybe;
+using System;
+using System.Threading.Tasks;
+using Xunit;
 
 namespace Maybe.Tests;
 
+/// <summary>
+/// Contains unit tests for the 'Select' (Map) extension methods.
+/// </summary>
 public class MaybeExtensions_Select_Tests
 {
-    private static readonly User TestUser = new(1, "Active User");
+    private record User(string Name);
+    private class TestError : Error { }
+
+    private static readonly User TestUser = new("Alice");
+    private static readonly TestError TestErrorCustom = new();
+
+    // --- Select (Sync -> Sync) ---
 
     [Fact]
-    public void Select_WhenSuccess_ReturnsTransformedValue()
+    public void Select_OnSuccess_ShouldTransformValue()
     {
-        var maybeUser = TestUser.MightBe<User, TestCustomError>();
-        var result = maybeUser.Select(u => u.Name);
-        Assert.True(result.IsSuccess);
-        Assert.Equal(TestUser.Name, result.ValueOrThrow());
+        // Arrange
+        Maybe<User, TestError> maybe = TestUser;
+
+        // Act
+        var result = maybe.Select(u => u.Name);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        result.ValueOrThrow().Should().Be("Alice");
     }
 
     [Fact]
-    public void Select_WhenError_PropagatesError()
+    public void Select_OnError_ShouldPropagateError()
     {
-        var maybeUser = TestError.MightBe<User, FailureError>();
-        var result = maybeUser.Select(u => u.Name);
-        Assert.True(result.IsError);
-        Assert.Equal(TestError, result.ErrorOrThrow());
+        // Arrange
+        Maybe<User, TestError> maybe = TestErrorCustom;
+        var wasCalled = false;
+        Func<User, string> selector = u => { wasCalled = true; return u.Name; };
+
+        // Act
+        var result = maybe.Select(selector);
+
+        // Assert
+        result.IsError.Should().BeTrue();
+        result.ErrorOrThrow().Should().Be(TestErrorCustom);
+        wasCalled.Should().BeFalse();
     }
 
+    // --- Select (Async -> Sync) ---
+
     [Fact]
-    public async Task Select_WhenTaskSuccess_ReturnsTransformedValue()
+    public async Task Select_OnSuccessTask_ShouldTransformValue()
     {
-        var maybeTask = Task.FromResult(TestUser.MightBe<User, TestCustomError>());
+        // Arrange
+        var maybeTask = Task.FromResult((Maybe<User, TestError>)TestUser);
+
+        // Act
         var result = await maybeTask.Select(u => u.Name);
-        Assert.True(result.IsSuccess);
-        Assert.Equal(TestUser.Name, result.ValueOrThrow());
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        result.ValueOrThrow().Should().Be("Alice");
     }
 
     [Fact]
-    public async Task Select_WhenTaskError_PropagatesError()
+    public async Task Select_OnErrorTask_ShouldPropagateError()
     {
-        var maybeTask = Task.FromResult(TestError.MightBe<User, FailureError>());
-        var result = await maybeTask.Select(u => u.Name);
-        Assert.True(result.IsError);
-        Assert.Equal(TestError, result.ErrorOrThrow());
+        // Arrange
+        var maybeTask = Task.FromResult((Maybe<User, TestError>)TestErrorCustom);
+        var wasCalled = false;
+        Func<User, string> selector = u => { wasCalled = true; return u.Name; };
+
+        // Act
+        var result = await maybeTask.Select(selector);
+
+        // Assert
+        result.IsError.Should().BeTrue();
+        result.ErrorOrThrow().Should().Be(TestErrorCustom);
+        wasCalled.Should().BeFalse();
     }
 
-    // New Tests for Maybe<TValue>
+    // --- SelectAsync (Sync -> Async) ---
 
     [Fact]
-    public void Select_WhenMaybeOfT_Success_ReturnsTransformedValue()
+    public async Task SelectAsync_OnSuccess_ShouldTransformValue()
     {
-        Maybe<User, FailureError> maybeUser = TestUser;
-        var result = maybeUser.Select(u => u.Name);
-        Assert.True(result.IsSuccess);
-        Assert.Equal(TestUser.Name, result.ValueOrThrow());
+        // Arrange
+        Maybe<User, TestError> maybe = TestUser;
+
+        // Act
+        var result = await maybe.SelectAsync(u => Task.FromResult(u.Name));
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        result.ValueOrThrow().Should().Be("Alice");
     }
 
     [Fact]
-    public void Select_WhenMaybeOfT_Error_PropagatesError()
+    public async Task SelectAsync_OnError_ShouldPropagateError()
     {
-        Maybe<User, FailureError> maybeUser = TestError;
-        var result = maybeUser.Select(u => u.Name);
-        Assert.True(result.IsError);
-        Assert.Equal(TestError, result.ErrorOrThrow());
+        // Arrange
+        Maybe<User, TestError> maybe = TestErrorCustom;
+        var wasCalled = false;
+        Func<User, Task<string>> selector = u => { wasCalled = true; return Task.FromResult(u.Name); };
+
+        // Act
+        var result = await maybe.SelectAsync(selector);
+
+        // Assert
+        result.IsError.Should().BeTrue();
+        result.ErrorOrThrow().Should().Be(TestErrorCustom);
+        wasCalled.Should().BeFalse();
+    }
+
+    // --- SelectAsync (Async -> Async) ---
+
+    [Fact]
+    public async Task SelectAsync_OnSuccessTask_ShouldTransformValue()
+    {
+        // Arrange
+        var maybeTask = Task.FromResult((Maybe<User, TestError>)TestUser);
+
+        // Act
+        var result = await maybeTask.SelectAsync(u => Task.FromResult(u.Name));
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        result.ValueOrThrow().Should().Be("Alice");
     }
 
     [Fact]
-    public async Task Select_WhenMaybeOfT_TaskSuccess_ReturnsTransformedValue()
+    public async Task SelectAsync_OnErrorTask_ShouldPropagateError()
     {
-        var maybeTask = Task.FromResult((Maybe<User, FailureError>)TestUser);
-        var result = await maybeTask.Select(u => u.Name);
-        Assert.True(result.IsSuccess);
-        Assert.Equal(TestUser.Name, result.ValueOrThrow());
+        // Arrange
+        var maybeTask = Task.FromResult((Maybe<User, TestError>)TestErrorCustom);
+        var wasCalled = false;
+        Func<User, Task<string>> selector = u => { wasCalled = true; return Task.FromResult(u.Name); };
+
+        // Act
+        var result = await maybeTask.SelectAsync(selector);
+
+        // Assert
+        result.IsError.Should().BeTrue();
+        result.ErrorOrThrow().Should().Be(TestErrorCustom);
+        wasCalled.Should().BeFalse();
     }
 }

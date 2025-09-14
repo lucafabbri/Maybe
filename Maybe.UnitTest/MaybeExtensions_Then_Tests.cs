@@ -1,176 +1,236 @@
-﻿using Xunit;
-using static Maybe.Tests.TestData;
+﻿using FluentAssertions;
+using Maybe;
+using System.Threading.Tasks;
+using Xunit;
 
 namespace Maybe.Tests;
 
+/// <summary>
+/// Contains unit tests for the 'Then' (Bind/FlatMap) extension methods.
+/// </summary>
 public class MaybeExtensions_Then_Tests
 {
-    private Maybe<string, ValidationError> SuccessFunc(TestValue value) => $"Processed: {value.Name}";
-    private Maybe<string, FailureError> ErrorFunc(TestValue value) => TestError;
-    private Task<Maybe<string, ValidationError>> SuccessAsyncFunc(TestValue value) => Task.FromResult((Maybe<string, ValidationError>)$"Processed: {value.Name}");
-    private Task<Maybe<string, FailureError>> ErrorAsyncFunc(TestValue value) => Task.FromResult((Maybe<string, FailureError>)TestError);
+    // --- Test Data ---
+    private record TestValue(string Name);
+    private class FirstError : Error { }
+    private class SecondError : Error { }
 
-    // --- Then (Sync) ---
+    private static readonly TestValue SuccessValue = new("Success");
+    private static readonly FirstError TestError1 = new();
+    private static readonly SecondError TestError2 = new();
+
+    // --- Test Functions ---
+    private Maybe<string, SecondError> SuccessFunc(TestValue value) => $"Processed: {value.Name}";
+    private Maybe<string, SecondError> ErrorFunc(TestValue value) => TestError2;
+    private Task<Maybe<string, SecondError>> SuccessAsyncFunc(TestValue value) => Task.FromResult((Maybe<string, SecondError>)$"Processed: {value.Name}");
+    private Task<Maybe<string, SecondError>> ErrorAsyncFunc(TestValue value) => Task.FromResult((Maybe<string, SecondError>)TestError2);
+
+
+    // --- Then (Sync -> Sync) ---
 
     [Fact]
-    public void Then_WhenSuccess_AndFuncSucceeds_ReturnsNewSuccess()
+    public void Then_OnSuccess_WhenFuncSucceeds_ReturnsNewSuccess()
     {
         // Arrange
-        Maybe<TestValue, ValidationError> maybe = SuccessValue;
+        Maybe<TestValue, FirstError> maybe = SuccessValue;
 
         // Act
         var result = maybe.Then(SuccessFunc);
 
         // Assert
-        Assert.True(result.IsSuccess);
-        Assert.Equal("Processed: Success", result.ValueOrThrow());
+        result.IsSuccess.Should().BeTrue();
+        result.ValueOrThrow().Should().Be("Processed: Success");
     }
 
     [Fact]
-    public void Then_WhenSuccess_AndFuncFails_ReturnsNewError()
+    public void Then_OnSuccess_WhenFuncFails_ReturnsNewError()
     {
         // Arrange
-        Maybe<TestValue, ValidationError> maybe = SuccessValue;
+        Maybe<TestValue, FirstError> maybe = SuccessValue;
 
         // Act
         var result = maybe.Then(ErrorFunc);
 
         // Assert
-        Assert.True(result.IsError);
-        Assert.Equal(TestError, result.ErrorOrThrow());
+        result.IsError.Should().BeTrue();
+        result.ErrorOrThrow().Should().Be(TestError2);
     }
 
     [Fact]
-    public void Then_WhenError_DoesNotExecuteFuncAndPropagatesError()
+    public void Then_OnError_WhenErrorTypesAreCompatible_PropagatesCastedError()
     {
         // Arrange
-        Maybe<TestValue, FailureError> maybe = TestError;
-        var funcWasCalled = false;
-        Maybe<string, FailureError> TrackableSuccessFunc(TestValue _)
-        {
-            funcWasCalled = true;
-            return "Should not be called";
-        }
+        var specificError = new NotFoundError();
+        Maybe<TestValue, NotFoundError> maybe = specificError;
+
+        // The function expects a more generic Error, which NotFoundError is.
+        Maybe<string, Error> Func(TestValue _) => "Should not be called";
 
         // Act
-        var result = maybe.Then(TrackableSuccessFunc);
+        var result = maybe.Then(Func);
 
         // Assert
-        Assert.True(result.IsError);
-        Assert.Equal(TestError, result.ErrorOrThrow());
-        Assert.False(funcWasCalled, "The chained function should not be executed on an error state.");
+        result.IsError.Should().BeTrue();
+        result.ErrorOrThrow().Should().BeSameAs(specificError);
     }
 
-    // --- ThenAsync (Sync source, Async func) ---
-
     [Fact]
-    public async Task ThenAsync_WhenSuccess_ChainsAsynchronously()
+    public void Then_OnError_WhenErrorTypesAreIncompatible_CreatesNewErrorWithInnerError()
     {
         // Arrange
-        Maybe<TestValue, ValidationError> maybe = SuccessValue;
+        Maybe<TestValue, FirstError> maybe = TestError1;
+        var funcWasCalled = false;
+        Maybe<string, SecondError> TrackableFunc(TestValue _) { funcWasCalled = true; return "X"; }
+
+        // Act
+        var result = maybe.Then(TrackableFunc);
+
+        // Assert
+        result.IsError.Should().BeTrue();
+        funcWasCalled.Should().BeFalse();
+        var error = result.ErrorOrThrow().Should().BeOfType<SecondError>().Subject;
+        error.InnerError.Should().BeSameAs(TestError1);
+    }
+
+    // --- ThenAsync (Sync -> Async) ---
+
+    [Fact]
+    public async Task ThenAsync_OnSuccess_WhenFuncSucceeds_ReturnsNewSuccess()
+    {
+        // Arrange
+        Maybe<TestValue, FirstError> maybe = SuccessValue;
 
         // Act
         var result = await maybe.ThenAsync(SuccessAsyncFunc);
 
         // Assert
-        Assert.True(result.IsSuccess);
-        Assert.Equal("Processed: Success", result.ValueOrThrow());
+        result.IsSuccess.Should().BeTrue();
+        result.ValueOrThrow().Should().Be("Processed: Success");
     }
 
     [Fact]
-    public async Task ThenAsync_WhenError_PropagatesErrorWithoutExecutingFunc()
+    public async Task ThenAsync_OnSuccess_WhenFuncFails_ReturnsNewError()
     {
         // Arrange
-        Maybe<TestValue, FailureError> maybe = TestError;
-        var funcWasCalled = false;
-        Task<Maybe<string, FailureError>> TrackableSuccessAsyncFunc(TestValue _)
-        {
-            funcWasCalled = true;
-            return Task.FromResult((Maybe<string, FailureError>)"Should not be called");
-        }
+        Maybe<TestValue, FirstError> maybe = SuccessValue;
 
         // Act
-        var result = await maybe.ThenAsync(TrackableSuccessAsyncFunc);
+        var result = await maybe.ThenAsync(ErrorAsyncFunc);
 
         // Assert
-        Assert.True(result.IsError);
-        Assert.Equal(TestError, result.ErrorOrThrow());
-        Assert.False(funcWasCalled, "The chained async function should not be executed on an error state.");
+        result.IsError.Should().BeTrue();
+        result.ErrorOrThrow().Should().Be(TestError2);
     }
 
-    // --- Then (Async source, Sync func) ---
-
     [Fact]
-    public async Task Then_OnTask_WhenSuccess_ChainsSynchronously()
+    public async Task ThenAsync_OnError_WhenErrorTypesAreIncompatible_CreatesNewError()
     {
         // Arrange
-        var maybeTask = Task.FromResult((Maybe<TestValue, ValidationError>)SuccessValue);
+        Maybe<TestValue, FirstError> maybe = TestError1;
+        var funcWasCalled = false;
+        Task<Maybe<string, SecondError>> TrackableFunc(TestValue _) { funcWasCalled = true; return Task.FromResult((Maybe<string, SecondError>)"X"); }
+
+        // Act
+        var result = await maybe.ThenAsync(TrackableFunc);
+
+        // Assert
+        result.IsError.Should().BeTrue();
+        funcWasCalled.Should().BeFalse();
+        var error = result.ErrorOrThrow().Should().BeOfType<SecondError>().Subject;
+        error.InnerError.Should().BeSameAs(TestError1);
+    }
+
+    // --- Then (Async -> Sync) ---
+
+    [Fact]
+    public async Task Then_OnSuccessTask_WhenFuncSucceeds_ReturnsNewSuccess()
+    {
+        // Arrange
+        var maybeTask = Task.FromResult((Maybe<TestValue, FirstError>)SuccessValue);
 
         // Act
         var result = await maybeTask.Then(SuccessFunc);
 
         // Assert
-        Assert.True(result.IsSuccess);
-        Assert.Equal("Processed: Success", result.ValueOrThrow());
+        result.IsSuccess.Should().BeTrue();
+        result.ValueOrThrow().Should().Be("Processed: Success");
     }
 
     [Fact]
-    public async Task Then_OnTask_WhenError_PropagatesError()
+    public async Task Then_OnSuccessTask_WhenFuncFails_ReturnsNewError()
     {
         // Arrange
-        var maybeTask = Task.FromResult((Maybe<TestValue, FailureError>)TestError);
-        var funcWasCalled = false;
-        Maybe<string, FailureError> TrackableSuccessFunc(TestValue _)
-        {
-            funcWasCalled = true;
-            return "Should not be called";
-        }
+        var maybeTask = Task.FromResult((Maybe<TestValue, FirstError>)SuccessValue);
 
         // Act
-        var result = await maybeTask.Then(TrackableSuccessFunc);
+        var result = await maybeTask.Then(ErrorFunc);
 
         // Assert
-        Assert.True(result.IsError);
-        Assert.Equal(TestError, result.ErrorOrThrow());
-        Assert.False(funcWasCalled, "The chained function should not be executed when the source task has an error.");
+        result.IsError.Should().BeTrue();
+        result.ErrorOrThrow().Should().Be(TestError2);
     }
 
-    // --- ThenAsync (Async source, Async func) ---
-
     [Fact]
-    public async Task ThenAsync_OnTask_WhenSuccess_ChainsAsynchronously()
+    public async Task Then_OnErrorTask_PropagatesIncompatibleError()
     {
         // Arrange
-        var maybeTask = Task.FromResult((Maybe<TestValue, ValidationError>)SuccessValue);
+        var maybeTask = Task.FromResult((Maybe<TestValue, FirstError>)TestError1);
+        var funcWasCalled = false;
+        Maybe<string, SecondError> TrackableFunc(TestValue _) { funcWasCalled = true; return "X"; }
+
+        // Act
+        var result = await maybeTask.Then(TrackableFunc);
+
+        // Assert
+        result.IsError.Should().BeTrue();
+        funcWasCalled.Should().BeFalse();
+        result.ErrorOrThrow().InnerError.Should().BeSameAs(TestError1);
+    }
+
+    // --- ThenAsync (Async -> Async) ---
+
+    [Fact]
+    public async Task ThenAsync_OnSuccessTask_WhenFuncSucceeds_ReturnsNewSuccess()
+    {
+        // Arrange
+        var maybeTask = Task.FromResult((Maybe<TestValue, FirstError>)SuccessValue);
 
         // Act
         var result = await maybeTask.ThenAsync(SuccessAsyncFunc);
 
         // Assert
-        Assert.True(result.IsSuccess);
-        Assert.Equal("Processed: Success", result.ValueOrThrow());
+        result.IsSuccess.Should().BeTrue();
+        result.ValueOrThrow().Should().Be("Processed: Success");
     }
 
     [Fact]
-    public async Task ThenAsync_OnTask_WhenError_PropagatesError()
+    public async Task ThenAsync_OnSuccessTask_WhenFuncFails_ReturnsNewError()
     {
         // Arrange
-        var maybeTask = Task.FromResult((Maybe<TestValue, FailureError>)TestError);
-        var funcWasCalled = false;
-        Task<Maybe<string, FailureError>> TrackableSuccessAsyncFunc(TestValue _)
-        {
-            funcWasCalled = true;
-            return Task.FromResult((Maybe<string, FailureError>)"Should not be called");
-        }
+        var maybeTask = Task.FromResult((Maybe<TestValue, FirstError>)SuccessValue);
 
         // Act
-        var result = await maybeTask.ThenAsync(TrackableSuccessAsyncFunc);
+        var result = await maybeTask.ThenAsync(ErrorAsyncFunc);
 
         // Assert
-        Assert.True(result.IsError);
-        Assert.Equal(TestError, result.ErrorOrThrow());
-        Assert.False(funcWasCalled, "The chained async function should not be executed when the source task has an error.");
+        result.IsError.Should().BeTrue();
+        result.ErrorOrThrow().Should().Be(TestError2);
+    }
+
+    [Fact]
+    public async Task ThenAsync_OnErrorTask_PropagatesIncompatibleError()
+    {
+        // Arrange
+        var maybeTask = Task.FromResult((Maybe<TestValue, FirstError>)TestError1);
+        var funcWasCalled = false;
+        Task<Maybe<string, SecondError>> TrackableFunc(TestValue _) { funcWasCalled = true; return Task.FromResult((Maybe<string, SecondError>)"X"); }
+
+        // Act
+        var result = await maybeTask.ThenAsync(TrackableFunc);
+
+        // Assert
+        result.IsError.Should().BeTrue();
+        funcWasCalled.Should().BeFalse();
+        result.ErrorOrThrow().InnerError.Should().BeSameAs(TestError1);
     }
 }
-
-

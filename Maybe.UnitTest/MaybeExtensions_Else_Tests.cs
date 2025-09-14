@@ -1,44 +1,180 @@
-﻿using static Maybe.Tests.TestData;
+﻿using FluentAssertions;
+using Maybe;
+using System;
+using System.Threading.Tasks;
+using Xunit;
 
 namespace Maybe.Tests;
 
+/// <summary>
+/// Contains unit tests for the 'Else' (Fallback) extension methods.
+/// </summary>
 public class MaybeExtensions_Else_Tests
 {
-    private static readonly User TestUser = new(1, "Active User");
-    private static readonly User InactiveUser = new(0, "Inactive User");
-    [Fact]
-    public void Else_WhenSuccess_ReturnsValue()
-    {
-        Maybe<User, TestCustomError> maybeUser = TestUser;
-        var result = maybeUser.Else(InactiveUser);
+    private record User(string Name);
+    private class TestError : Error { }
 
-        Assert.Equal(TestUser, result);
+    private static readonly User SuccessUser = new("Alice");
+    private static readonly User FallbackUser = new("Guest");
+    private static readonly TestError TestErrorCustom = new();
+
+    // --- Else (Sync Fallback) ---
+
+    [Fact]
+    public void Else_WithValue_OnSuccess_ReturnsOriginalValue()
+    {
+        // Arrange
+        Maybe<User, TestError> maybe = SuccessUser;
+
+        // Act
+        var result = maybe.Else(FallbackUser);
+
+        // Assert
+        result.Should().Be(SuccessUser);
     }
 
     [Fact]
-    public void Else_WhenError_ReturnsFallbackValue()
+    public void Else_WithValue_OnError_ReturnsFallbackValue()
     {
-        Maybe<User, FailureError> maybeUser = TestError;
-        var result = maybeUser.Else(InactiveUser);
+        // Arrange
+        Maybe<User, TestError> maybe = TestErrorCustom;
 
-        Assert.Equal(InactiveUser, result);
+        // Act
+        var result = maybe.Else(FallbackUser);
+
+        // Assert
+        result.Should().Be(FallbackUser);
     }
 
     [Fact]
-    public void Else_WhenError_InvokesFallbackFunc()
+    public void Else_WithFunc_OnSuccess_ReturnsOriginalValueAndDoesNotInvokeFunc()
     {
-        Maybe<User, FailureError> maybeUser = TestError;
-        var result = maybeUser.Else(e => InactiveUser);
+        // Arrange
+        Maybe<User, TestError> maybe = SuccessUser;
+        var wasCalled = false;
+        Func<TestError, User> fallbackFunc = e => { wasCalled = true; return FallbackUser; };
 
-        Assert.Equal(InactiveUser, result);
+        // Act
+        var result = maybe.Else(fallbackFunc);
+
+        // Assert
+        result.Should().Be(SuccessUser);
+        wasCalled.Should().BeFalse();
     }
 
     [Fact]
-    public async Task Else_WhenTaskError_ReturnsFallbackValue()
+    public void Else_WithFunc_OnError_InvokesFuncAndReturnsItsValue()
     {
-        var maybeTask = Task.FromResult((Maybe<User, FailureError>)TestError);
-        var result = await maybeTask.Else(InactiveUser);
+        // Arrange
+        Maybe<User, TestError> maybe = TestErrorCustom;
+        var wasCalled = false;
+        Func<TestError, User> fallbackFunc = e => { wasCalled = true; return FallbackUser; };
 
-        Assert.Equal(InactiveUser, result);
+        // Act
+        var result = maybe.Else(fallbackFunc);
+
+        // Assert
+        result.Should().Be(FallbackUser);
+        wasCalled.Should().BeTrue();
+    }
+
+    // --- Else on Task<Maybe> (Sync Fallback) ---
+
+    [Fact]
+    public async Task Else_OnSuccessTask_ReturnsOriginalValue()
+    {
+        // Arrange
+        var maybeTask = Task.FromResult((Maybe<User, TestError>)SuccessUser);
+
+        // Act
+        var resultWithValue = await maybeTask.Else(FallbackUser);
+        var resultWithFunc = await maybeTask.Else(e => FallbackUser);
+
+        // Assert
+        resultWithValue.Should().Be(SuccessUser);
+        resultWithFunc.Should().Be(SuccessUser);
+    }
+
+    [Fact]
+    public async Task Else_OnErrorTask_ReturnsFallbackValue()
+    {
+        // Arrange
+        var maybeTask = Task.FromResult((Maybe<User, TestError>)TestErrorCustom);
+
+        // Act
+        var resultWithValue = await maybeTask.Else(FallbackUser);
+        var resultWithFunc = await maybeTask.Else(e => FallbackUser);
+
+        // Assert
+        resultWithValue.Should().Be(FallbackUser);
+        resultWithFunc.Should().Be(FallbackUser);
+    }
+
+    // --- ElseAsync (Async Fallback) ---
+
+    [Fact]
+    public async Task ElseAsync_OnSuccess_ReturnsOriginalValueAndDoesNotInvokeFunc()
+    {
+        // Arrange
+        Maybe<User, TestError> maybe = SuccessUser;
+        var wasCalled = false;
+        Func<TestError, Task<User>> fallbackFunc = e => { wasCalled = true; return Task.FromResult(FallbackUser); };
+
+        // Act
+        var result = await maybe.ElseAsync(fallbackFunc);
+
+        // Assert
+        result.Should().Be(SuccessUser);
+        wasCalled.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task ElseAsync_OnError_InvokesFuncAndReturnsItsValue()
+    {
+        // Arrange
+        Maybe<User, TestError> maybe = TestErrorCustom;
+        var wasCalled = false;
+        Func<TestError, Task<User>> fallbackFunc = e => { wasCalled = true; return Task.FromResult(FallbackUser); };
+
+        // Act
+        var result = await maybe.ElseAsync(fallbackFunc);
+
+        // Assert
+        result.Should().Be(FallbackUser);
+        wasCalled.Should().BeTrue();
+    }
+
+    // --- ElseAsync on Task<Maybe> (Async Fallback) ---
+
+    [Fact]
+    public async Task ElseAsync_OnSuccessTask_ReturnsOriginalValue()
+    {
+        // Arrange
+        var maybeTask = Task.FromResult((Maybe<User, TestError>)SuccessUser);
+        var wasCalled = false;
+        Func<TestError, Task<User>> fallbackFunc = e => { wasCalled = true; return Task.FromResult(FallbackUser); };
+
+        // Act
+        var result = await maybeTask.ElseAsync(fallbackFunc);
+
+        // Assert
+        result.Should().Be(SuccessUser);
+        wasCalled.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task ElseAsync_OnErrorTask_ReturnsFallbackValue()
+    {
+        // Arrange
+        var maybeTask = Task.FromResult((Maybe<User, TestError>)TestErrorCustom);
+        var wasCalled = false;
+        Func<TestError, Task<User>> fallbackFunc = e => { wasCalled = true; return Task.FromResult(FallbackUser); };
+
+        // Act
+        var result = await maybeTask.ElseAsync(fallbackFunc);
+
+        // Assert
+        result.Should().Be(FallbackUser);
+        wasCalled.Should().BeTrue();
     }
 }
