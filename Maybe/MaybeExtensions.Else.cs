@@ -14,7 +14,7 @@ public static partial class MaybeExtensions
     public static TValue Else<TValue, TError>(
         this in Maybe<TValue, TError> maybe,
         TValue fallbackValue)
-        where TError : Error, new()
+        where TError : BaseError, new()
     {
         return maybe.IsSuccess
             ? maybe.ValueOrThrow()
@@ -27,7 +27,7 @@ public static partial class MaybeExtensions
     public static TValue Else<TValue, TError>(
         this in Maybe<TValue, TError> maybe,
         Func<TError, TValue> fallbackFunc)
-        where TError : Error, new()
+        where TError : BaseError, new()
     {
         return maybe.IsSuccess
             ? maybe.ValueOrThrow()
@@ -44,7 +44,7 @@ public static partial class MaybeExtensions
     public static async Task<TValue> Else<TValue, TError>(
         this Task<Maybe<TValue, TError>> maybeTask,
         TValue fallbackValue)
-        where TError : Error, new()
+        where TError : BaseError, new()
     {
         var maybe = await maybeTask.ConfigureAwait(false);
         return maybe.Else(fallbackValue);
@@ -56,7 +56,7 @@ public static partial class MaybeExtensions
     public static async Task<TValue> Else<TValue, TError>(
         this Task<Maybe<TValue, TError>> maybeTask,
         Func<TError, TValue> fallbackFunc)
-        where TError : Error, new()
+        where TError : BaseError, new()
     {
         var maybe = await maybeTask.ConfigureAwait(false);
         return maybe.Else(fallbackFunc);
@@ -72,7 +72,7 @@ public static partial class MaybeExtensions
     public static Task<TValue> ElseAsync<TValue, TError>(
         this Maybe<TValue, TError> maybe,
         Func<TError, Task<TValue>> fallbackAsync)
-        where TError : Error, new()
+        where TError : BaseError, new()
     {
         return maybe.IsSuccess
             ? Task.FromResult(maybe.ValueOrThrow())
@@ -85,7 +85,7 @@ public static partial class MaybeExtensions
     public static async Task<TValue> ElseAsync<TValue, TError>(
         this Task<Maybe<TValue, TError>> maybeTask,
         Func<TError, Task<TValue>> fallbackAsync)
-        where TError : Error, new()
+        where TError : BaseError, new()
     {
         var maybe = await maybeTask.ConfigureAwait(false);
         return await maybe.ElseAsync(fallbackAsync).ConfigureAwait(false);

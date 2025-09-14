@@ -8,25 +8,24 @@ namespace Maybe.Tests.Exts;
 public record User(int Id, string Name, bool IsActive);
 public record Profile(string Email);
 
-public class UserNotFoundError : Error
+public class UserNotFoundError : NotFoundError
 {
-    public override OutcomeType Type => OutcomeType.NotFound;
     public override string Code => "User.NotFound";
-    public override string Message => "The user was not found.";
+    public override string Message => "User not found.";
 }
-public class PermissionsError : Error
+public class PermissionsError : AuthorizationError
 {
     public override OutcomeType Type => OutcomeType.Forbidden;
     public override string Code => "Permissions.Denied";
     public override string Message => "Permission denied.";
 }
-public class CacheError : Error
+public class CacheError : FailureError
 {
     public override OutcomeType Type => OutcomeType.Failure;
     public override string Code => "Cache.Miss";
     public override string Message => "Could not find user in cache.";
 }
-public class ValidationError : Error
+public class ValidationError : Maybe.ValidationError
 {
     public override OutcomeType Type => OutcomeType.Validation;
     public override string Code => "Name.Invalid";
@@ -69,7 +68,7 @@ public class ExtensionTests
     [Theory]
     [InlineData(1, "Admin")]
     [InlineData(2, "Permissions.Denied")]
-    [InlineData(3, "User.NotFound")]
+    [InlineData(3, "Permissions.Denied")]
     public void Then_Sync(int userId, string expectedCode)
     {
         var result = Api.FindUserInDb(userId).Then(Api.GetPermissions);
@@ -104,11 +103,20 @@ public class ExtensionTests
     [InlineData(3, "User.NotFound")]
     public void Ensure_Sync(int userId, string expectedResult)
     {
-        var result = Api.FindUserInDb(userId).Ensure(user => user.IsActive, Error.Forbidden("User.Inactive"));
+        var result = Api.FindUserInDb(userId).Ensure(user => user.IsActive, Error.Custom(OutcomeType.Validation, "User.Inactive", "User is not active"));
+
+        string GetInnerErrorCode(BaseError error)
+        {
+            if(error.InnerError == null)
+            {
+                return error.Code;
+            }
+            return GetInnerErrorCode(error.InnerError);
+        }
 
         var outcome = result.Match(
             onSome: value => value.ToString(),
-            onNone: error => error.Code
+            onNone: GetInnerErrorCode
         );
 
         Assert.Equal(expectedResult, outcome);

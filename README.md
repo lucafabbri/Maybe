@@ -19,29 +19,53 @@
 
 </div>
 
-- [Give it a star ⭐!](#give-it-a-star-)
-- [Philosophy: Beyond Error Handling](#philosophy-beyond-error-handling)
-- [Core Concepts](#core-concepts)
-  - [Simplified Usage with `Maybe<TValue>`](#simplified-usage-with-maybetvalue)
-  - [Advanced Usage with `Maybe<TValue, TError>`](#advanced-usage-with-maybetvalue-terror)
-  - [Progressive Enhancement with `IOutcome`](#progressive-enhancement-with-ioutcome)
-- [Getting Started 🏃](#getting-started-)
-  - [From Throwing Exceptions to Returning Outcomes](#from-throwing-exceptions-to-returning-outcomes)
-  - [Fluent Chaining with Sync & Async Interop](#fluent-chaining-with-sync--async-interop)
-- [Creating a `Maybe` instance](#creating-a-maybe-instance)
-- [API Reference: Our Vocabulary](#api-reference-our-vocabulary)
-  - [Then (Bind / FlatMap)](#then-bind--flatmap)
-  - [Select (Map)](#select-map)
-  - [Ensure (Validate)](#ensure-validate)
-  - [Recover (Error Handling Bind)](#recover-error-handling-bind)
-  - [Match (Unwrap)](#match-unwrap)
-  - [Else (Fallback)](#else-fallback)
-  - [IfSome / IfNone (Side Effects)](#ifsome--ifnone-side-effects)
-  - [ThenDo / ElseDo (Terminal Side Effects)](#thendo--elsedo-terminal-side-effects)
-- [Expressive Success Outcomes](#expressive-success-outcomes)
-- [Custom Errors](#custom-errors)
-- [Contribution 🤲](#contribution-)
-- [License 🪪](#license-)
+* [Give it a star ⭐!](https://www.google.com/search?q=%23give-it-a-star-)
+
+* [Philosophy: Beyond Error Handling](https://www.google.com/search?q=%23philosophy-beyond-error-handling)
+
+* [Core Concepts](https://www.google.com/search?q=%23core-concepts)
+
+  * [Usage with `Maybe<TValue, TError>`](https://www.google.com/search?q=%23usage-with-maybetvalue-terror)
+
+  * [Progressive Enhancement with `IOutcome`](https://www.google.com/search?q=%23progressive-enhancement-with-ioutcome)
+
+* [Getting Started 🏃](https://www.google.com/search?q=%23getting-started-)
+
+  * [From Throwing Exceptions to Returning Outcomes](https://www.google.com/search?q=%23from-throwing-exceptions-to-returning-outcomes)
+
+  * [Fluent Chaining with Sync & Async Interop](https://www.google.com/search?q=%23fluent-chaining-with-sync--async-interop)
+
+* [Creating a `Maybe` instance](https://www.google.com/search?q=%23creating-a-maybe-instance)
+
+* [Advanced Error Handling: Specialized Errors](https://www.google.com/search?q=%23advanced-error-handling-specialized-errors)
+
+* [Powerful Logging with `ToFullString()`](https://www.google.com/search?q=%23powerful-logging-with-tofullstring)
+
+* [API Reference: Our Vocabulary](https://www.google.com/search?q=%23api-reference-our-vocabulary)
+
+  * [Then (Bind / FlatMap)](https://www.google.com/search?q=%23then-bind--flatmap)
+
+  * [Select (Map)](https://www.google.com/search?q=%23select-map)
+
+  * [Ensure (Validate)](https://www.google.com/search?q=%23ensure-validate)
+
+  * [Recover (Error Handling Bind)](https://www.google.com/search?q=%23recover-error-handling-bind)
+
+  * [Match (Unwrap)](https://www.google.com/search?q=%23match-unwrap)
+
+  * [Else (Fallback)](https://www.google.com/search?q=%23else-fallback)
+
+  * [IfSome / IfNone (Side Effects)](https://www.google.com/search?q=%23ifsome--ifnone-side-effects)
+
+  * [ThenDo / ElseDo (Terminal Side Effects)](https://www.google.com/search?q=%23thendo--elsedo-terminal-side-effects)
+
+* [Expressive Success Outcomes](https://www.google.com/search?q=%23expressive-success-outcomes)
+
+* [Generic Constraints & Custom Errors](https://www.google.com/search?q=%23generic-constraints--custom-errors)
+
+* [Contribution 🤲](https://www.google.com/search?q=%23contribution-)
+
+* [License 🪪](https://www.google.com/search?q=%23license-)
 
 # Give it a star ⭐!
 
@@ -52,45 +76,47 @@ Loving it? Show your support by giving this project a star!
 `Maybe` is more than just an error-handling library; it's a tool for writing clearer, more expressive, and more resilient code. It encourages you to think about the different **outcomes** of your operations, not just success or failure.
 
 By using an elegant, fluent API, `Maybe` guides you to:
+
 * **Write code that reads like a business process.**
+
 * **Handle both success and failure paths explicitly.**
+
 * **Eliminate unexpected runtime exceptions.**
+
 * **Seamlessly compose synchronous and asynchronous operations.**
 
 # Core Concepts
 
 `Maybe` is designed to be **simple for common cases, but powerful for advanced scenarios**.
 
-## Simplified Usage with `Maybe<TValue>`
+## Usage with `Maybe<TValue, TError>`
 
-For the majority of use cases, you only need to specify the success type. The error type defaults to a built-in `Error` struct that covers all common failure scenarios.
+You can specify both a success type and an error type. For common scenarios, you can use the built-in `Error` class, which provides a rich, specialized error system.
 
 ```csharp
-// This signature is clean and simple.
-public Maybe<User> FindUser(int id)
+// The error type defaults to the built-in Error class.
+public Maybe<User, Error> FindUser(int id)
 {
     if (id > 0)
     {
-        return new User(id, "Alice");
+        return new User(id, ""Alice"");
     }
 
-    // Return a built-in error type.
-    return Error.NotFound("User.NotFound", "The user was not found.");
+    // Return a built-in, specialized error type.
+    return Error.NotFound(itemName: ""User"", identifier: id);
 }
 ```
 
-## Advanced Usage with `Maybe<TValue, TError>`
-
-When you need to return a **custom, strongly-typed error** with specific data, you can use the two-parameter version. This gives you full control over the failure path.
+When you need to return a **custom, strongly-typed error** with specific data, you can provide your own error type.
 
 ```csharp
-public record UserCreationError(string Field, string Message) : IError { /* ... */ }
+public class UserCreationError : GenericError { /* ... */ }
 
 public Maybe<User, UserCreationError> CreateUser(string email)
 {
     if (string.IsNullOrEmpty(email))
     {
-        return new UserCreationError("Email", "Email cannot be empty.");
+        return new UserCreationError(""Email cannot be empty."");
     }
 
     // ...
@@ -103,13 +129,13 @@ When you need to communicate a **more specific success state** (like `Created` o
 
 ```csharp
 // 'Created' implements IOutcome and has its own OutcomeType
-public Maybe<Created> CreateUser(string name)
+public Maybe<Created, Error> CreateUser(string name)
 {
     // ... create user ...
     return Outcomes.Created;
 }
 
-var result = CreateUser("Bob");
+var result = CreateUser(""Bob"");
 // result.Type is now 'OutcomeType.Created', not the default 'Success'.
 ```
 
@@ -125,7 +151,7 @@ public User GetUserById(int id)
     var user = _db.Users.Find(id);
     if (user is null)
     {
-        throw new UserNotFoundException("User not found");
+        throw new UserNotFoundException(""User not found"");
     }
     return user;
 }
@@ -134,12 +160,12 @@ public User GetUserById(int id)
 Turns into this 👇, using the powerful `Match` method to handle both outcomes safely.
 
 ```csharp
-public Maybe<User> GetUserById(int id)
+public Maybe<User, Error> GetUserById(int id)
 {
     var user = _db.Users.Find(id);
     if (user is null)
     {
-        return Error.NotFound("User.NotFound", "User was not found.");
+        return Error.NotFound(itemName: ""User"", identifier: id);
     }
     return user;
 }
@@ -156,13 +182,13 @@ The true power of `Maybe` lies in its fluent DSL. The API is designed to be intu
 
 ```csharp
 // This example finds a user, validates their status, gets their permissions, and transforms the result.
-// Notice how .Select and .Ensure are used on an async source without needing an "Async" suffix.
+// Notice how .Select and .Ensure are used on an async source without needing an ""Async"" suffix.
 
-var result = await Api.FindUserAsync(userId)              // Start: Task<Maybe<User>>
-    .Ensure(user => user.IsActive, Errors.UserInactive)   // Then:  Sync validation
-    .Select(user => user.Name.ToUpper())                   // Then:  Sync transformation
-    .ThenAsync(name => Api.GetPermissionsAsync(name))      // Then:  Async chain
-    .Select(permissions => permissions.ToUpper());         // Finally: Sync transformation
+var result = await Api.FindUserAsync(userId)              // Start: Task<Maybe<User, Error>>
+    .Ensure(user => user.IsActive, Error.Failure(""User is inactive""))  // Then:  Sync validation
+    .Select(user => user.Name.ToUpper())                 // Then:  Sync transformation
+    .ThenAsync(name => Api.GetPermissionsAsync(name))    // Then:  Async chain
+    .Select(permissions => permissions.ToUpper());       // Finally: Sync transformation
 ```
 
 # Creating a `Maybe` instance
@@ -170,15 +196,114 @@ var result = await Api.FindUserAsync(userId)              // Start: Task<Maybe<U
 Creating a `Maybe` is designed to be frictionless, primarily through **implicit conversions**.
 
 ```csharp
-public Maybe<User> FindUser(int id)
+public Maybe<User, Error> FindUser(int id)
 {
     if (id == 1)
     {
-        return new User(1, "Alice", true); // Implicit conversion from User to Maybe<User>
+        return new User(1, ""Alice"", true); // Implicit conversion from User to Maybe<User, Error>
     }
 
-    return Error.NotFound(); // Implicit conversion from Error to Maybe<User>
+    return Error.NotFound(itemName: ""User"", identifier: id); // Implicit conversion from Error to Maybe<User, Error>
 }
+```
+
+# Advanced Error Handling: Specialized Errors
+
+`Maybe` shines with its rich, specialized error system. Instead of returning generic errors, you can use the built-in factory methods on the `Error` class to create descriptive, structured errors.
+
+### `ValidationError`
+
+For handling invalid input data, including field-specific details.
+
+```csharp
+var fieldErrors = new Dictionary<string, string>
+{
+    [""Email""] = ""Email address is already in use."",
+    [""Password""] = ""Password is too weak.""
+};
+var validationError = Error.Validation(fieldErrors, ""User registration failed."");
+// You can access the specific field errors later:
+// if (validationError is ValidationError v) { ... v.FieldErrors ... }
+```
+
+### `NotFoundError`
+
+For when a requested resource cannot be found.
+
+```csharp
+var notFoundError = Error.NotFound(itemName: ""Product"", identifier: ""SKU-12345"");
+// notFoundError.EntityName -> ""Product""
+// notFoundError.Identifier -> ""SKU-12345""
+```
+
+### `ConflictError`
+
+For conflicts with the current state of a resource (e.g., duplicates, stale data).
+
+```csharp
+var conflictingParams = new Dictionary<string, object> { [""Username""] = ""john.doe"" };
+var conflictError = Error.Conflict(
+    ConflictType.Duplicate, 
+    resourceType: ""User"", 
+    conflictingParameters: conflictingParams);
+```
+
+### `AuthorizationError`
+
+For authentication (`Unauthorized`) or permission (`Forbidden`) failures.
+
+```csharp
+var authError = Error.Forbidden(
+    action: ""DeleteResource"", 
+    resourceIdentifier: ""res-abc"", 
+    userId: ""user-789"");
+```
+
+### `UnexpectedError`
+
+For wrapping system exceptions while preserving the original context for logging.
+
+```csharp
+try { /* ... */ }
+catch (Exception ex)
+{
+    return Error.Unexpected(ex, ""Failed to communicate with the payment gateway."");
+}
+```
+
+### `FailureError`
+
+For expected but significant process failures, with additional context for debugging.
+
+```csharp
+var context = new Dictionary<string, object> { [""TransactionId""] = ""txn_54321"" };
+var failure = Error.Failure(
+    message: ""The payment was declined by the gateway."",
+    code: ""Payment.GatewayDeclined"",
+    contextData: context);
+```
+
+# Powerful Logging with `ToFullString()`
+
+Every `Error` object, including its inner errors, can be formatted into a detailed, aligned, and readable string perfect for logging.
+
+```csharp
+// Create a chain of errors
+var dbError = Error.NotFound(""User"", 123);
+var serviceError = Error.Failure(
+    message: ""Failed to process order"", 
+    code: ""Order.Processing"", 
+    innerError: dbError);
+
+// Print the full, formatted error chain
+Console.WriteLine(serviceError.ToFullString());
+```
+
+**Output:**
+
+```
+[Failure]    Order.Processing    [2025-09-14 11:00:00]   Failed to process order
+  [NotFound]   NotFound.User       [2025-09-14 11:00:00]   User with identifier '123' was not found.
 ```
 
 # API Reference: Our Vocabulary
@@ -189,7 +314,7 @@ public Maybe<User> FindUser(int id)
 
 ```csharp
 // Finds a user, and if successful, gets their permissions.
-Maybe<string, PermissionsError> result = Api.FindUserInDb(1)
+Maybe<Permissions, PermissionsError> result = Api.FindUserInDb(1)
     .Then(user => Api.GetPermissions(user));
 ```
 
@@ -216,11 +341,13 @@ The library provides two sets of `Ensure` overloads:
        .Ensure(u => u.IsActive, new PermissionsError());   // Error is also PermissionsError
    ```
 
-2. **Unifying (Changes Error Type)**: Used when the validation introduces a new, potentially incompatible error type, unifying the result to a `Maybe<TValue>`.
+2. **Unifying (Changes Error Type)**: Used when the validation introduces a new, potentially incompatible error type. The result is unified to a `Maybe` whose error channel is a common base type, typically `Error`.
 
    ```csharp
-   Maybe<User> validatedUser = GetUser() // Returns Maybe<User, UserNotFoundError>
-       .Ensure(u => u.Age > 18, Error.Validation("User.NotAdult")); // Introduces a new Error
+   // GetUser() returns Maybe<User, UserNotFoundError>
+   // The result is Maybe<User, Error> to accommodate both UserNotFoundError and ValidationError.
+   Maybe<User, Error> validatedUser = GetUser()
+       .Ensure(u => u.Age > 18, Error.Validation(new()));
    ```
 
 ### Recover (Error Handling Bind)
@@ -239,8 +366,8 @@ Maybe<User, CacheError> result = await Api.FindUserInDbAsync(1)
 
 ```csharp
 string message = maybeUser.Match(
-    onSome: user => $"Welcome, {user.Name}!",
-    onNone: error => $"Error: {error.Message}"
+    onSome: user => $""Welcome, {user.Name}!"",
+    onNone: error => $""Error: {error.Message}""
 );
 ```
 
@@ -249,7 +376,7 @@ string message = maybeUser.Match(
 **Purpose**: To exit the `Maybe` context by providing a default value in case of an error.
 
 ```csharp
-string userName = maybeUser.Select(u => u.Name).Else("Guest");
+string userName = maybeUser.Select(u => u.Name).Else(""Guest"");
 ```
 
 ### IfSome / IfNone (Side Effects)
@@ -258,8 +385,8 @@ string userName = maybeUser.Select(u => u.Name).Else("Guest");
 
 ```csharp
 Maybe<User, UserNotFoundError> finalResult = Api.FindUserInDb(1)
-    .IfSome(user => Console.WriteLine($"User found: {user.Id}"))
-    .IfNone(error => Console.WriteLine($"Failed to find user: {error.Code}"));
+    .IfSome(user => Console.WriteLine($""User found: {user.Id}""))
+    .IfNone(error => Console.WriteLine($""Failed to find user: {error.Code}""));
 ```
 
 ### ThenDo / ElseDo (Terminal Side Effects)
@@ -270,13 +397,13 @@ Maybe<User, UserNotFoundError> finalResult = Api.FindUserInDb(1)
 // Example: Final logging after a chain of operations
 await Api.FindUserInDbAsync(1)
     .Then(Api.GetPermissions)
-    .ThenDoAsync(permissions => Log.Information($"Permissions granted: {permissions}"))
-    .ElseDoAsync(error => Log.Error($"Operation failed: {error.Code}"));
+    .ThenDoAsync(permissions => Log.Information($""Permissions granted: {permissions}""))
+    .ElseDoAsync(error => Log.Error($""Operation failed: {error.Code}""));
 ```
 
 # Expressive Success Outcomes
 
-As explained in the [Core Concepts](#core-concepts), you can use types that implement `IOutcome` to communicate richer success states. `Maybe` provides a set of built-in, stateless `struct` types for common "void" operations, accessible via the `Outcomes` static class:
+As explained in the [Core Concepts](https://www.google.com/search?q=%23core-concepts), you can use types that implement `IOutcome` to communicate richer success states. `Maybe` provides a set of built-in, stateless `struct` types for common ""void"" operations, accessible via the `Outcomes` static class:
 
 * `Outcomes.Success`
 
@@ -293,7 +420,7 @@ As explained in the [Core Concepts](#core-concepts), you can use types that impl
 * `new Cached<T>(value)`
 
 ```csharp
-public Maybe<Deleted> DeleteUser(int id)
+public Maybe<Deleted, Error> DeleteUser(int id)
 {
     if (UserExists(id))
     {
@@ -301,31 +428,37 @@ public Maybe<Deleted> DeleteUser(int id)
         return Outcomes.Deleted; // More expressive than returning void or true
     }
 
-    return Error.NotFound();
+    return Error.NotFound(itemName: ""User"", identifier: id);
 }
 ```
 
-# Custom Errors
+# Generic Constraints & Custom Errors
 
-While the built-in `Error` struct is sufficient for many cases, you can create your own strongly-typed errors by implementing `IError`. This is the primary use case for `Maybe<TValue, TError>`.
+The `Maybe<TValue, TError>` struct requires `TError` to have a parameterless constructor via the `where TError : Error, new()` constraint. All specialized errors provided by this library fulfill this requirement.
+
+If you create your own custom error classes, they must also provide a public parameterless constructor. It's recommended to inherit from `GenericError` for simplicity and to gain access to features like `ToFullString()`.
 
 ```csharp
-public record InvalidEmailError(string Email) : IError
+// Your custom error must have a parameterless constructor.
+public class MyCustomError : GenericError 
 {
-    public OutcomeType Type => OutcomeType.Validation;
-    public string Code => "Email.Invalid";
-    public string Message => $"The email '{Email}' is not a valid address.";
+    public MyCustomError() { /* ... */ }
+
+    public MyCustomError(string message) 
+        : base(OutcomeType.Failure, ""Custom.Code"", message) { }
 }
 
-public Maybe<User, InvalidEmailError> CreateUser(string email)
+// This allows it to be used in generic methods with the `new()` constraint.
+public Maybe<T, TError> GenericOperation<T, TError>() where TError : Error, new()
 {
-    if (!IsValid(email))
+    // ...
+    if (someCondition)
     {
-        return new InvalidEmailError(email);
+        // Now this is possible
+        return new TError(); 
     }
     // ...
 }
-
 ```
 
 # Contribution 🤲
@@ -335,3 +468,4 @@ If you have any questions, comments, or suggestions, please open an issue or cre
 # License 🪪
 
 This project is licensed under the terms of the [MIT](https://github.com/your-repo/maybe/blob/main/LICENSE) license.
+

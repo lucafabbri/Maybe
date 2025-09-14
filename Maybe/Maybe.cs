@@ -9,7 +9,7 @@ namespace Maybe;
 /// <typeparam name="TValue">The type of the success value.</typeparam>
 /// <typeparam name="TError">The type of the error, which must implement IError.</typeparam>
 public partial struct Maybe<TValue, TError>
-    where TError : Error, new()
+    where TError : BaseError, new()
 {
     private readonly TValue _value;
     private readonly TError _error;
@@ -109,7 +109,7 @@ public partial struct Maybe<TValue, TError>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Maybe<TValue, TError> None(TError error) => new(error);
 
-    public static Maybe<TValue, TError> None(Error error)
+    public static Maybe<TValue, TError> None(BaseError error)
     {
         if (error is TError typedError)
         {

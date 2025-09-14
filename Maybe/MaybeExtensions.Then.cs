@@ -10,29 +10,47 @@ public static partial class MaybeExtensions
     #region Source: Maybe<T, E1> (Sync)
 
     /// <summary>
-    /// Sync -> Sync | Specific Error -> Specific Error
+    /// Sync -> Sync | Specific BaseError -> Specific BaseError
     /// </summary>
     public static Maybe<TNewValue, TNewError> Then<TValue, TError, TNewValue, TNewError>(
         this in Maybe<TValue, TError> maybe,
         Func<TValue, Maybe<TNewValue, TNewError>> func)
-        where TError : Error, new() where TNewError : Error, new()
+        where TError : BaseError, new() where TNewError : BaseError, new()
     {
-        return maybe.IsSuccess
-            ? func(maybe.ValueOrThrow())
-            : Maybe<TNewValue, TNewError>.None(CreateErrorFrom<TNewError>(maybe.ErrorOrThrow()));
+        if (maybe.IsSuccess)
+        {
+            return func(maybe.ValueOrThrow());
+        }
+        else
+        {
+            if (maybe.ErrorOrThrow() is TNewError sameTypeError)
+            {
+                return Maybe<TNewValue, TNewError>.None(sameTypeError);
+            }
+            else
+            {
+                return Maybe<TNewValue, TNewError>.None(CreateErrorFrom<TNewError>(maybe.ErrorOrThrow()));
+            }
+        }
     }
 
     /// <summary>
-    /// Sync -> Async | Specific Error -> Specific Error
+    /// Sync -> Async | Specific BaseError -> Specific BaseError
     /// </summary>
     public static async Task<Maybe<TNewValue, TNewError>> ThenAsync<TValue, TError, TNewValue, TNewError>(
         this Maybe<TValue, TError> maybe,
         Func<TValue, Task<Maybe<TNewValue, TNewError>>> funcAsync)
-        where TError : Error, new() where TNewError : Error, new()
+        where TError : BaseError, new() where TNewError : BaseError, new()
     {
-        return maybe.IsSuccess
-            ? await funcAsync(maybe.ValueOrThrow()).ConfigureAwait(false)
-            : Maybe<TNewValue, TNewError>.None(CreateErrorFrom<TNewError>(maybe.ErrorOrThrow()));
+        if (maybe.IsSuccess) {
+            return await funcAsync(maybe.ValueOrThrow()).ConfigureAwait(false);
+        }
+        else if (maybe.ErrorOrThrow() is TNewError sameTypeError) {
+            return Maybe<TNewValue, TNewError>.None(sameTypeError);
+        }
+        else {
+            return Maybe<TNewValue, TNewError>.None(CreateErrorFrom<TNewError>(maybe.ErrorOrThrow()));
+        }
     }
 
     #endregion
@@ -40,24 +58,24 @@ public static partial class MaybeExtensions
     #region Source: Task<Maybe<T, E1>> (Async)
 
     /// <summary>
-    /// Async -> Sync | Specific Error -> Specific Error
+    /// Async -> Sync | Specific BaseError -> Specific BaseError
     /// </summary>
     public static async Task<Maybe<TNewValue, TNewError>> Then<TValue, TError, TNewValue, TNewError>(
         this Task<Maybe<TValue, TError>> maybeTask,
         Func<TValue, Maybe<TNewValue, TNewError>> func)
-        where TError : Error, new() where TNewError : Error, new()
+        where TError : BaseError, new() where TNewError : BaseError, new()
     {
         var maybe = await maybeTask.ConfigureAwait(false);
         return maybe.Then(func);
     }
 
     /// <summary>
-    /// Async -> Async | Specific Error -> Specific Error
+    /// Async -> Async | Specific BaseError -> Specific BaseError
     /// </summary>
     public static async Task<Maybe<TNewValue, TNewError>> ThenAsync<TValue, TError, TNewValue, TNewError>(
         this Task<Maybe<TValue, TError>> maybeTask,
         Func<TValue, Task<Maybe<TNewValue, TNewError>>> funcAsync)
-        where TError : Error, new() where TNewError : Error, new()
+        where TError : BaseError, new() where TNewError : BaseError, new()
     {
         var maybe = await maybeTask.ConfigureAwait(false);
         return await maybe.ThenAsync(funcAsync).ConfigureAwait(false);
@@ -66,22 +84,15 @@ public static partial class MaybeExtensions
     #endregion
 
     /// <summary>
-    /// Safely creates a new error instance from a source error, using the Error(Error other) constructor.
+    /// Safely creates a new error instance from a source error, using the BaseError(BaseError other) constructor.
     /// </summary>
-    private static TNewError CreateErrorFrom<TNewError>(Error sourceError) where TNewError : Error, new()
+    private static TNewError CreateErrorFrom<TNewError>(BaseError sourceError) where TNewError : BaseError, new()
     {
         var newError = new TNewError();
 
         newError.SetInnerError(sourceError);
 
-        if (newError is null)
-        {
-            // Fallback if Activator fails, to prevent null reference.
-            return (TNewError)Error.Unexpected(
-                "Activator.CreateInstance.Failed",
-                $"Could not create an instance of error '{typeof(TNewError).Name}' from source '{sourceError.GetType().Name}'. Ensure it has a constructor that accepts a base Error type.");
-        }
-        return (TNewError)newError;
+        return newError;
     }
 }
 

@@ -14,7 +14,7 @@ public static partial class MaybeExtensions
     public static Maybe<TResult, TError> Select<TValue, TError, TResult>(
         this in Maybe<TValue, TError> maybe,
         Func<TValue, TResult> selector)
-        where TError : Error, new()
+        where TError : BaseError, new()
     {
         return maybe.IsSuccess
             ? Maybe<TResult, TError>.Some(selector(maybe.ValueOrThrow()))
@@ -27,7 +27,7 @@ public static partial class MaybeExtensions
     public static async Task<Maybe<TResult, TError>> Select<TValue, TError, TResult>(
         this Task<Maybe<TValue, TError>> maybeTask,
         Func<TValue, TResult> selector)
-        where TError : Error, new()
+        where TError : BaseError, new()
     {
         var maybe = await maybeTask.ConfigureAwait(false);
         return maybe.Select(selector);
@@ -43,7 +43,7 @@ public static partial class MaybeExtensions
     public static async Task<Maybe<TResult, TError>> SelectAsync<TValue, TError, TResult>(
         this Maybe<TValue, TError> maybe,
         Func<TValue, Task<TResult>> selectorAsync)
-        where TError : Error, new()
+        where TError : BaseError, new()
     {
         if (maybe.IsError)
         {
@@ -59,7 +59,7 @@ public static partial class MaybeExtensions
     public static async Task<Maybe<TResult, TError>> SelectAsync<TValue, TError, TResult>(
         this Task<Maybe<TValue, TError>> maybeTask,
         Func<TValue, Task<TResult>> selectorAsync)
-        where TError : Error, new()
+        where TError : BaseError, new()
     {
         var maybe = await maybeTask.ConfigureAwait(false);
         return await maybe.SelectAsync(selectorAsync).ConfigureAwait(false);

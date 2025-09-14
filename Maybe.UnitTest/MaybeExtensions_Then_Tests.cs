@@ -5,10 +5,10 @@ namespace Maybe.Tests;
 
 public class MaybeExtensions_Then_Tests
 {
-    private Maybe<string, Error> SuccessFunc(TestValue value) => $"Processed: {value.Name}";
-    private Maybe<string> ErrorFunc(TestValue value) => TestError;
-    private Task<Maybe<string>> SuccessAsyncFunc(TestValue value) => Task.FromResult((Maybe<string>)$"Processed: {value.Name}");
-    private Task<Maybe<string>> ErrorAsyncFunc(TestValue value) => Task.FromResult((Maybe<string>)TestError);
+    private Maybe<string, ValidationError> SuccessFunc(TestValue value) => $"Processed: {value.Name}";
+    private Maybe<string, FailureError> ErrorFunc(TestValue value) => TestError;
+    private Task<Maybe<string, ValidationError>> SuccessAsyncFunc(TestValue value) => Task.FromResult((Maybe<string, ValidationError>)$"Processed: {value.Name}");
+    private Task<Maybe<string, FailureError>> ErrorAsyncFunc(TestValue value) => Task.FromResult((Maybe<string, FailureError>)TestError);
 
     // --- Then (Sync) ---
 
@@ -16,7 +16,7 @@ public class MaybeExtensions_Then_Tests
     public void Then_WhenSuccess_AndFuncSucceeds_ReturnsNewSuccess()
     {
         // Arrange
-        Maybe<TestValue> maybe = SuccessValue;
+        Maybe<TestValue, ValidationError> maybe = SuccessValue;
 
         // Act
         var result = maybe.Then(SuccessFunc);
@@ -30,7 +30,7 @@ public class MaybeExtensions_Then_Tests
     public void Then_WhenSuccess_AndFuncFails_ReturnsNewError()
     {
         // Arrange
-        Maybe<TestValue> maybe = SuccessValue;
+        Maybe<TestValue, ValidationError> maybe = SuccessValue;
 
         // Act
         var result = maybe.Then(ErrorFunc);
@@ -44,9 +44,9 @@ public class MaybeExtensions_Then_Tests
     public void Then_WhenError_DoesNotExecuteFuncAndPropagatesError()
     {
         // Arrange
-        Maybe<TestValue> maybe = TestError;
+        Maybe<TestValue, FailureError> maybe = TestError;
         var funcWasCalled = false;
-        Maybe<string> TrackableSuccessFunc(TestValue _)
+        Maybe<string, FailureError> TrackableSuccessFunc(TestValue _)
         {
             funcWasCalled = true;
             return "Should not be called";
@@ -67,7 +67,7 @@ public class MaybeExtensions_Then_Tests
     public async Task ThenAsync_WhenSuccess_ChainsAsynchronously()
     {
         // Arrange
-        Maybe<TestValue> maybe = SuccessValue;
+        Maybe<TestValue, ValidationError> maybe = SuccessValue;
 
         // Act
         var result = await maybe.ThenAsync(SuccessAsyncFunc);
@@ -81,12 +81,12 @@ public class MaybeExtensions_Then_Tests
     public async Task ThenAsync_WhenError_PropagatesErrorWithoutExecutingFunc()
     {
         // Arrange
-        Maybe<TestValue> maybe = TestError;
+        Maybe<TestValue, FailureError> maybe = TestError;
         var funcWasCalled = false;
-        Task<Maybe<string>> TrackableSuccessAsyncFunc(TestValue _)
+        Task<Maybe<string, FailureError>> TrackableSuccessAsyncFunc(TestValue _)
         {
             funcWasCalled = true;
-            return Task.FromResult((Maybe<string>)"Should not be called");
+            return Task.FromResult((Maybe<string, FailureError>)"Should not be called");
         }
 
         // Act
@@ -104,7 +104,7 @@ public class MaybeExtensions_Then_Tests
     public async Task Then_OnTask_WhenSuccess_ChainsSynchronously()
     {
         // Arrange
-        var maybeTask = Task.FromResult((Maybe<TestValue>)SuccessValue);
+        var maybeTask = Task.FromResult((Maybe<TestValue, ValidationError>)SuccessValue);
 
         // Act
         var result = await maybeTask.Then(SuccessFunc);
@@ -118,9 +118,9 @@ public class MaybeExtensions_Then_Tests
     public async Task Then_OnTask_WhenError_PropagatesError()
     {
         // Arrange
-        var maybeTask = Task.FromResult((Maybe<TestValue>)TestError);
+        var maybeTask = Task.FromResult((Maybe<TestValue, FailureError>)TestError);
         var funcWasCalled = false;
-        Maybe<string> TrackableSuccessFunc(TestValue _)
+        Maybe<string, FailureError> TrackableSuccessFunc(TestValue _)
         {
             funcWasCalled = true;
             return "Should not be called";
@@ -141,7 +141,7 @@ public class MaybeExtensions_Then_Tests
     public async Task ThenAsync_OnTask_WhenSuccess_ChainsAsynchronously()
     {
         // Arrange
-        var maybeTask = Task.FromResult((Maybe<TestValue>)SuccessValue);
+        var maybeTask = Task.FromResult((Maybe<TestValue, ValidationError>)SuccessValue);
 
         // Act
         var result = await maybeTask.ThenAsync(SuccessAsyncFunc);
@@ -155,12 +155,12 @@ public class MaybeExtensions_Then_Tests
     public async Task ThenAsync_OnTask_WhenError_PropagatesError()
     {
         // Arrange
-        var maybeTask = Task.FromResult((Maybe<TestValue>)TestError);
+        var maybeTask = Task.FromResult((Maybe<TestValue, FailureError>)TestError);
         var funcWasCalled = false;
-        Task<Maybe<string>> TrackableSuccessAsyncFunc(TestValue _)
+        Task<Maybe<string, FailureError>> TrackableSuccessAsyncFunc(TestValue _)
         {
             funcWasCalled = true;
-            return Task.FromResult((Maybe<string>)"Should not be called");
+            return Task.FromResult((Maybe<string, FailureError>)"Should not be called");
         }
 
         // Act

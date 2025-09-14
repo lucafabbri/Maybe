@@ -13,8 +13,8 @@ public static partial class MaybeExtensions
     public static Maybe<TValue, TNewError> Recover<TValue, TError, TNewError>(
         this in Maybe<TValue, TError> maybe,
         Func<TError, Maybe<TValue, TNewError>> recoveryFunc)
-        where TError : Error, new() 
-        where TNewError : Error, new()
+        where TError : BaseError, new() 
+        where TNewError : BaseError, new()
     {
         return maybe.IsSuccess
             ? Maybe<TValue, TNewError>.Some(maybe.ValueOrThrow())
@@ -27,8 +27,8 @@ public static partial class MaybeExtensions
     public static Task<Maybe<TValue, TNewError>> RecoverAsync<TValue, TError, TNewError>(
         this Maybe<TValue, TError> maybe,
         Func<TError, Task<Maybe<TValue, TNewError>>> recoveryFuncAsync)
-        where TError : Error, new() 
-        where TNewError : Error, new()
+        where TError : BaseError, new() 
+        where TNewError : BaseError, new()
     {
         return maybe.IsSuccess
             ? Task.FromResult(Maybe<TValue, TNewError>.Some(maybe.ValueOrThrow()))
@@ -49,7 +49,7 @@ public static partial class MaybeExtensions
     public static async Task<Maybe<TValue, TNewError>> Recover<TValue, TError, TNewError>(
         this Task<Maybe<TValue, TError>> maybeTask,
         Func<TError, Maybe<TValue, TNewError>> recoveryFunc)
-        where TError : Error, new() where TNewError : Error, new()
+        where TError : BaseError, new() where TNewError : BaseError, new()
     {
         var maybe = await maybeTask.ConfigureAwait(false);
         return maybe.Recover(recoveryFunc);
@@ -61,7 +61,7 @@ public static partial class MaybeExtensions
     public static async Task<Maybe<TValue, TNewError>> RecoverAsync<TValue, TError, TNewError>(
         this Task<Maybe<TValue, TError>> maybeTask,
         Func<TError, Task<Maybe<TValue, TNewError>>> recoveryFuncAsync)
-        where TError : Error, new() where TNewError : Error, new()
+        where TError : BaseError, new() where TNewError : BaseError, new()
     {
         var maybe = await maybeTask.ConfigureAwait(false);
         return await maybe.RecoverAsync(recoveryFuncAsync).ConfigureAwait(false);

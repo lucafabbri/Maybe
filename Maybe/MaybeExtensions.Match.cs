@@ -15,7 +15,7 @@ public static partial class MaybeExtensions
         this in Maybe<TValue, TError> maybe,
         Func<TValue, TResult> onSome,
         Func<TError, TResult> onNone)
-        where TError : Error, new()
+        where TError : BaseError, new()
     {
         return maybe.IsSuccess
             ? onSome(maybe.ValueOrThrow())
@@ -29,7 +29,7 @@ public static partial class MaybeExtensions
         this Task<Maybe<TValue, TError>> maybeTask,
         Func<TValue, TResult> onSome,
         Func<TError, TResult> onNone)
-        where TError : Error, new()
+        where TError : BaseError, new()
     {
         var maybe = await maybeTask.ConfigureAwait(false);
         return maybe.Match(onSome, onNone);
@@ -46,7 +46,7 @@ public static partial class MaybeExtensions
         this Maybe<TValue, TError> maybe,
         Func<TValue, Task<TResult>> onSomeAsync,
         Func<TError, Task<TResult>> onNoneAsync)
-        where TError : Error, new()
+        where TError : BaseError, new()
     {
         return maybe.IsSuccess
             ? onSomeAsync(maybe.ValueOrThrow())
@@ -60,7 +60,7 @@ public static partial class MaybeExtensions
         this Maybe<TValue, TError> maybe,
         Func<TValue, Task<TResult>> onSomeAsync,
         Func<TError, TResult> onNone)
-        where TError : Error, new()
+        where TError : BaseError, new()
     {
         return maybe.IsSuccess
             ? await onSomeAsync(maybe.ValueOrThrow()).ConfigureAwait(false)
@@ -74,7 +74,7 @@ public static partial class MaybeExtensions
         this Maybe<TValue, TError> maybe,
         Func<TValue, TResult> onSome,
         Func<TError, Task<TResult>> onNoneAsync)
-        where TError : Error, new()
+        where TError : BaseError, new()
     {
         return maybe.IsSuccess
             ? onSome(maybe.ValueOrThrow())
@@ -88,7 +88,7 @@ public static partial class MaybeExtensions
         this Task<Maybe<TValue, TError>> maybeTask,
         Func<TValue, Task<TResult>> onSomeAsync,
         Func<TError, Task<TResult>> onNoneAsync)
-        where TError : Error, new()
+        where TError : BaseError, new()
     {
         var maybe = await maybeTask.ConfigureAwait(false);
         return await maybe.MatchAsync(onSomeAsync, onNoneAsync).ConfigureAwait(false);
@@ -101,7 +101,7 @@ public static partial class MaybeExtensions
         this Task<Maybe<TValue, TError>> maybeTask,
         Func<TValue, Task<TResult>> onSomeAsync,
         Func<TError, TResult> onNone)
-        where TError : Error, new()
+        where TError : BaseError, new()
     {
         var maybe = await maybeTask.ConfigureAwait(false);
         return await maybe.MatchAsync(onSomeAsync, onNone).ConfigureAwait(false);
@@ -114,7 +114,7 @@ public static partial class MaybeExtensions
         this Task<Maybe<TValue, TError>> maybeTask,
         Func<TValue, TResult> onSome,
         Func<TError, Task<TResult>> onNoneAsync)
-        where TError : Error, new()
+        where TError : BaseError, new()
     {
         var maybe = await maybeTask.ConfigureAwait(false);
         return await maybe.MatchAsync(onSome, onNoneAsync).ConfigureAwait(false);

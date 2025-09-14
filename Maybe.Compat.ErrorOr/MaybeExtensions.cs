@@ -12,14 +12,14 @@ public static class MaybeExtensions
     /// </summary>
     /// <remarks>
     /// If the Maybe is a success, the value is preserved.
-    /// If the Maybe is an error, the hierarchical error chain is flattened into a list of ErrorOr.Error.
+    /// If the Maybe is an error, the hierarchical error chain is flattened into a list of ErrorOr.BaseError.
     /// </remarks>
     /// <typeparam name="TValue">The type of the success value.</typeparam>
     /// <typeparam name="TError">The type of the error in the Maybe.</typeparam>
     /// <param name="maybe">The Maybe instance to convert.</param>
     /// <returns>An ErrorOr<TValue> representing the outcome of the Maybe.</returns>
     public static ErrorOr<TValue> ToErrorOr<TValue, TError>(this Maybe<TValue, TError> maybe)
-        where TError : Error, new()
+        where TError : BaseError, new()
     {
         if (maybe.IsSuccess)
         {
@@ -27,7 +27,7 @@ public static class MaybeExtensions
         }
 
         var errors = new List<ErrorOr.Error>();
-        Error? currentError = maybe.ErrorOrThrow();
+        BaseError? currentError = maybe.ErrorOrThrow();
 
         while (currentError is not null)
         {

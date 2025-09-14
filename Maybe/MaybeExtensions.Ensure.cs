@@ -13,8 +13,8 @@ public static partial class MaybeExtensions
     public static Maybe<TValue, TError> Ensure<TValue, TError>(
         this in Maybe<TValue, TError> maybe,
         Func<TValue, bool> predicate,
-        Error error)
-        where TError : Error, new()
+        BaseError error)
+        where TError : BaseError, new()
     {
         if (maybe.IsError) return maybe;
         if (predicate(maybe.ValueOrThrow()))
@@ -35,8 +35,8 @@ public static partial class MaybeExtensions
     public static async Task<Maybe<TValue, TError>> Ensure<TValue, TError>(
         this Task<Maybe<TValue, TError>> maybeTask,
         Func<TValue, bool> predicate,
-        Error error)
-        where TError : Error, new()
+        BaseError error)
+        where TError : BaseError, new()
     {
         var maybe = await maybeTask.ConfigureAwait(false);
         return maybe.Ensure(predicate, error);
@@ -48,8 +48,8 @@ public static partial class MaybeExtensions
     public static async Task<Maybe<TValue, TError>> EnsureAsync<TValue, TError>(
         this Maybe<TValue, TError> maybe,
         Func<TValue, Task<bool>> predicateAsync,
-        Error error)
-        where TError : Error, new()
+        BaseError error)
+        where TError : BaseError, new()
     {
         if (maybe.IsError) return maybe;
         if(await predicateAsync(maybe.ValueOrThrow()).ConfigureAwait(false))
@@ -70,8 +70,8 @@ public static partial class MaybeExtensions
     public static async Task<Maybe<TValue, TError>> EnsureAsync<TValue, TError>(
         this Task<Maybe<TValue, TError>> maybeTask,
         Func<TValue, Task<bool>> predicateAsync,
-        Error error)
-        where TError : Error, new()
+        BaseError error)
+        where TError : BaseError, new()
     {
         var maybe = await maybeTask.ConfigureAwait(false);
         return await maybe.EnsureAsync(predicateAsync, error).ConfigureAwait(false);

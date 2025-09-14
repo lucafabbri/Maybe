@@ -20,7 +20,7 @@ public class MaybeIOutcomeTests
     {
         // Arrange
         var customOutcome = new CustomAcceptedOutcome("Request-123");
-        Maybe<CustomAcceptedOutcome, Error> maybe = customOutcome;
+        Maybe<CustomAcceptedOutcome, TestCustomError> maybe = customOutcome;
 
         // Act
         var outcomeType = maybe.Type;
@@ -36,7 +36,7 @@ public class MaybeIOutcomeTests
     {
         // Arrange
         var customOutcome = new CustomAcceptedOutcome("Request-123");
-        Maybe<CustomAcceptedOutcome, Error> maybe = customOutcome;
+        Maybe<CustomAcceptedOutcome, TestCustomError> maybe = customOutcome;
 
         // Act
         var result = maybe.Match(
@@ -57,12 +57,12 @@ public class MaybeIOutcomeTests
     {
         // Arrange
         var customOutcome = new CustomAcceptedOutcome("Request-123");
-        var maybeTask = Task.FromResult((Maybe<CustomAcceptedOutcome, Error>)customOutcome);
+        var maybeTask = Task.FromResult((Maybe<CustomAcceptedOutcome, TestCustomError>)customOutcome);
 
         // Act
         var result = await maybeTask
             .Select(outcome => outcome.RequestId)
-            .Then(requestId => (Maybe<string>)$"Processed: {requestId}");
+            .Then(requestId => (Maybe<string, TestCustomError>)$"Processed: {requestId}");
 
         // Assert
         Assert.True(result.IsSuccess);

@@ -5,11 +5,11 @@ namespace Maybe.Tests;
 public class MaybeExtensions_Match_Tests
 {
     private static readonly User TestUser = new(1, "Active User");
-    private static readonly Error TestError = Error.Failure("User.NotFound", "The user was not found.");
+    private static readonly FailureError TestError = Error.Failure("User.NotFound", "The user was not found.");
     [Fact]
     public void Match_WhenSuccess_InvokesOnSome()
     {
-        Maybe<User> maybeUser = TestUser;
+        Maybe<User, TestCustomError> maybeUser = TestUser;
         var result = maybeUser.Match(
             onSome: u => u.Name,
             onNone: e => "Error");
@@ -20,7 +20,7 @@ public class MaybeExtensions_Match_Tests
     [Fact]
     public void Match_WhenError_InvokesOnNone()
     {
-        Maybe<User> maybeUser = TestError;
+        Maybe<User, FailureError> maybeUser = TestError;
         var result = maybeUser.Match(
             onSome: u => "Success",
             onNone: e => e.Message);
@@ -31,7 +31,7 @@ public class MaybeExtensions_Match_Tests
     [Fact]
     public async Task Match_WhenTaskSuccess_InvokesOnSome()
     {
-        var maybeTask = Task.FromResult((Maybe<User>)TestUser);
+        var maybeTask = Task.FromResult((Maybe<User, TestCustomError>)TestUser);
         var result = await maybeTask.Match(
             onSome: u => u.Name,
             onNone: e => "Error");

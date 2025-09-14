@@ -10,25 +10,25 @@ public record User(int Id, string Name, bool IsActive);
 public record Profile(string Email);
 
 // CORRECTED: Added copy constructors to all error types for safe propagation
-public class UserNotFoundError : Error
+public class UserNotFoundError : NotFoundError
 {
     public override OutcomeType Type => OutcomeType.NotFound;
     public override string Code => "User.NotFound";
     public override string Message => "The user was not found.";
 }
-public class PermissionsError : Error
+public class PermissionsError : AuthorizationError
 {
 	public override OutcomeType Type => OutcomeType.Forbidden;
 	public override string Code => "Permissions.Denied";
 	public override string Message => "Permission denied.";
 }
-public class CacheError : Error
+public class CacheError : FailureError
 {
 	public override OutcomeType Type => OutcomeType.Failure;
 	public override string Code => "Cache.Miss";
 	public override string Message => "Could not find user in cache.";
 }
-public class ValidationError : Error
+public class ValidationError : Maybe.ValidationError
 {
 	public override OutcomeType Type => OutcomeType.Validation;
 	public override string Code => "Name.Invalid";
@@ -80,12 +80,12 @@ public static class Program
 	public static async Task Main()
     {
 
-        var rootCause = Error.NotFound("Database.UserNotFound", "User with ID 123 not found.");
+        var rootCause = Error.NotFound("User with ID 123 not found.", "Database.UserNotFound");
         // Attendo un secondo per rendere i timestamp diversi
         System.Threading.Thread.Sleep(1000);
-        var serviceError = Error.Failure("Service.GetUser", "Failed to retrieve user. While we tries to open the connection everything exploded.", rootCause);
+        var serviceError = Error.Failure("Failed to retrieve user. While we tries to open the connection everything exploded.", "Service.GetUser", innerError: rootCause);
         System.Threading.Thread.Sleep(1000);
-        var apiError = Error.Unexpected("Api.Controller", "Error processing request.", serviceError);
+        var apiError = Error.Custom(OutcomeType.Unexpected, "Error processing request.", "Api.Controller", serviceError);
 
         // --- TEST DEI LAYOUT ---
 
@@ -157,7 +157,7 @@ public static class Program
 	}
 
 	private static void PrintResult<TValue, TError>(Maybe<TValue, TError> result, string expected)
-		where TError : Error, new()
+		where TError : BaseError, new()
 	{
 		var outcome = result.Match(
 			onSome: value => value?.ToString() ?? "null",

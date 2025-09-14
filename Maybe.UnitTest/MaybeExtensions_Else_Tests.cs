@@ -9,7 +9,7 @@ public class MaybeExtensions_Else_Tests
     [Fact]
     public void Else_WhenSuccess_ReturnsValue()
     {
-        Maybe<User> maybeUser = TestUser;
+        Maybe<User, TestCustomError> maybeUser = TestUser;
         var result = maybeUser.Else(InactiveUser);
 
         Assert.Equal(TestUser, result);
@@ -18,7 +18,7 @@ public class MaybeExtensions_Else_Tests
     [Fact]
     public void Else_WhenError_ReturnsFallbackValue()
     {
-        Maybe<User> maybeUser = TestError;
+        Maybe<User, FailureError> maybeUser = TestError;
         var result = maybeUser.Else(InactiveUser);
 
         Assert.Equal(InactiveUser, result);
@@ -27,7 +27,7 @@ public class MaybeExtensions_Else_Tests
     [Fact]
     public void Else_WhenError_InvokesFallbackFunc()
     {
-        Maybe<User> maybeUser = TestError;
+        Maybe<User, FailureError> maybeUser = TestError;
         var result = maybeUser.Else(e => InactiveUser);
 
         Assert.Equal(InactiveUser, result);
@@ -36,7 +36,7 @@ public class MaybeExtensions_Else_Tests
     [Fact]
     public async Task Else_WhenTaskError_ReturnsFallbackValue()
     {
-        var maybeTask = Task.FromResult((Maybe<User>)TestError);
+        var maybeTask = Task.FromResult((Maybe<User, FailureError>)TestError);
         var result = await maybeTask.Else(InactiveUser);
 
         Assert.Equal(InactiveUser, result);
