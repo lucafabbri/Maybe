@@ -42,25 +42,37 @@ jobs:
       - name: Build
         run: dotnet build Maybe.sln --no-restore --configuration Release
 
-      # 5. Esegue i test dei progetti nella soluzione delle librerie
-      - name: Run tests
-        run: dotnet test Maybe.sln --no-build --configuration Release --verbosity normal
+      # 5. Esegue i test e genera il report di coverage --- MODIFICATO ---
+      - name: Run tests and collect coverage
+        run: >
+          dotnet test Maybe.sln 
+          --no-build 
+          --configuration Release 
+          --collect:""XPlat Code Coverage"" 
+          --results-directory ./coverage
 
+      # 6. Carica il report di coverage su Codecov --- NUOVO STEP ---
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          directory: ./coverage/
+          
       # --- Pubblicazione ---
       # I seguenti passaggi vengono eseguiti SOLO se il workflow
       # è stato attivato dal push di un tag (es. v1.2.3)
 
-      # 6. Crea i pacchetti NuGet per i progetti nella soluzione delle librerie
+      # 7. Crea i pacchetti NuGet per i progetti nella soluzione delle librerie
       - name: Pack projects
         if: startsWith(github.ref, 'refs/tags/v')
         run: dotnet pack Maybe.sln --no-build --configuration Release --output ./packages
 
-      # 7. Pubblica tutti i pacchetti .nupkg creati
+      # 8. Pubblica tutti i pacchetti .nupkg creati
       - name: Publish to NuGet
         if: startsWith(github.ref, 'refs/tags/v')
         run: dotnet nuget push "./packages/*.nupkg" --api-key "${{ secrets.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json
 
-      # 8. Crea una Release su GitHub e carica i pacchetti come artefatti
+      # 9. Crea una Release su GitHub e carica i pacchetti come artefatti
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
