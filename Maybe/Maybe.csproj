@@ -14,7 +14,7 @@
     <!-- NuGet Package Settings -->
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>FluentCoder.Maybe</PackageId>
-    <Version>2.0.0</Version>
+    <Version>2.0.1</Version>
     <Authors>Luca Fabbri</Authors>
     <Company>Luca Fabbri</Company>
     <Description>An elegant, fluent, and intuitive way to handle operations that may succeed or fail, inspired by functional programming principles.</Description>
