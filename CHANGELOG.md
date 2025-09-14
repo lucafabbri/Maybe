@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="2.0.0"></a>
+## [2.0.0](https://www.github.com/lucafabbri/Maybe/releases/tag/v2.0.0) (2025-09-14)
+
+### Features
+
+* shifts an advanced Error management without simple error Maybe<TValue> ([ad8ad1a](https://www.github.com/lucafabbri/Maybe/commit/ad8ad1ae789cd4d3c9c693b92dcaeb1f92209678))
+
+### Breaking Changes
+
+* shifts an advanced Error management without simple error Maybe<TValue> ([ad8ad1a](https://www.github.com/lucafabbri/Maybe/commit/ad8ad1ae789cd4d3c9c693b92dcaeb1f92209678))
+
 <a name="1.5.0"></a>
 ## [1.5.0](https://www.github.com/lucafabbri/Maybe/releases/tag/v1.5.0) (2025-09-12)
 
