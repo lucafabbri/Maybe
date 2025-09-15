@@ -14,7 +14,7 @@
     <!-- NuGet Package Settings -->
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>FluentCoder.Maybe.Compat.ErrorOr</PackageId>
-    <Version>2.1.2</Version>
+    <Version>2.1.3</Version>
     <Authors>Luca Fabbri</Authors>
     <Company>Luca Fabbri</Company>
     <Description>A compatibility layer to use FluentCoder.Maybe with ErrorOr library.</Description>
