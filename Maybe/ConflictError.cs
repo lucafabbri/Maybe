@@ -27,7 +27,7 @@ public class ConflictError : Error
     public ConflictError(
         ConflictType type,
         string resourceType,
-        IReadOnlyDictionary<string, object> conflictingParameters,
+        Dictionary<string, object> conflictingParameters,
         string? message = null,
         string? code = null,
         BaseError? innerError = null)
@@ -51,6 +51,6 @@ public class ConflictError : Error
     /// <summary>
     /// Gets or sets a dictionary of parameters and values that caused the conflict.
     /// </summary>
-    public IReadOnlyDictionary<string, object> ConflictingParameters { get; set; }
+    public Dictionary<string, object> ConflictingParameters { get; set; }
 }
 

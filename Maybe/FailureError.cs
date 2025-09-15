@@ -10,7 +10,7 @@ public class FailureError : Error
     /// </summary>
     public FailureError() : base(OutcomeType.Failure, "Default.Failure", "A failure has occurred.")
     {
-        ContextData = new Dictionary<string, object>();
+        ContextData = [];
     }
 
     /// <summary>
@@ -23,17 +23,17 @@ public class FailureError : Error
     public FailureError(
         string message,
         string code,
-        IReadOnlyDictionary<string, object>? contextData = null,
+        Dictionary<string, object>? contextData = null,
         BaseError? innerError = null)
         : base(OutcomeType.Failure, code, message, innerError)
     {
-        ContextData = contextData ?? new Dictionary<string, object>();
+        ContextData = contextData ?? [];
     }
 
     /// <summary>
     /// Gets or sets additional contextual data about the failure for logging and debugging.
     /// This can include parameters, state, or other information relevant to the failed process.
     /// </summary>
-    public IReadOnlyDictionary<string, object> ContextData { get; set; }
+    public Dictionary<string, object> ContextData { get; set; }
 }
 
