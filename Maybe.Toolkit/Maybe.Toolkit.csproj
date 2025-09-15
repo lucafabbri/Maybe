@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <IsPackable>true</IsPackable>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- NuGet Package Settings -->
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>FluentCoder.Maybe.Toolkit</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Luca Fabbri</Authors>
+    <Company>Luca Fabbri</Company>
+    <Description>A toolkit providing fluent Maybe-based wrappers for common .NET operations that typically throw exceptions, including JSON serialization, file I/O, parsing, HTTP requests, and collection access.</Description>
+    <Copyright>Copyright (c) Luca Fabbri 2025</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/lucafabbri/Maybe</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/lucafabbri/Maybe.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>maybe result error-handling functional toolkit json file parsing http</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Maybe\Maybe.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+  </ItemGroup>
+
+</Project>
