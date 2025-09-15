@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="2.1.2"></a>
+## [2.1.2](https://www.github.com/lucafabbri/Maybe/releases/tag/v2.1.2) (2025-09-15)
+
+### Bug Fixes
+
+* corrects the else return type to conform to Maybe<TValue, TError> ([b445cca](https://www.github.com/lucafabbri/Maybe/commit/b445cca4313f74916c88bc66bd7fc15fba8c0432))
+
 <a name="2.1.1"></a>
 ## [2.1.1](https://www.github.com/lucafabbri/Maybe/releases/tag/v2.1.1) (2025-09-15)
 
