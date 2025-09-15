@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="2.1.0"></a>
+## [2.1.0](https://www.github.com/lucafabbri/Maybe/releases/tag/v2.1.0) (2025-09-15)
+
+### Features
+
+* adds simplied then api for same result same error ([139db1e](https://www.github.com/lucafabbri/Maybe/commit/139db1e10414af81d95affe5b510be06f305c82c))
+
 <a name="2.0.1"></a>
 ## [2.0.1](https://www.github.com/lucafabbri/Maybe/releases/tag/v2.0.1) (2025-09-14)
 
