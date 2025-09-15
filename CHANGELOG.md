@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="2.1.1"></a>
+## [2.1.1](https://www.github.com/lucafabbri/Maybe/releases/tag/v2.1.1) (2025-09-15)
+
+### Bug Fixes
+
+* simplifies Dictionaries access ([92d9c81](https://www.github.com/lucafabbri/Maybe/commit/92d9c8187538d38250c995ca08d100a758d9e172))
+
 <a name="2.1.0"></a>
 ## [2.1.0](https://www.github.com/lucafabbri/Maybe/releases/tag/v2.1.0) (2025-09-15)
 
