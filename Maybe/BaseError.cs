@@ -139,7 +139,7 @@ public abstract class BaseError : IError
         if (string.IsNullOrWhiteSpace(text) || maxWidth <= 0) return [""];
 
         var lines = new List<string>();
-        var words = text.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+        var words = text.Split([' '], StringSplitOptions.RemoveEmptyEntries);
         var currentLine = new StringBuilder();
 
         foreach (var word in words)
