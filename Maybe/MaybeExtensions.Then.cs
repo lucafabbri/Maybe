@@ -35,6 +35,17 @@ public static partial class MaybeExtensions
     }
 
     /// <summary>
+    /// Sync -> Sync | Specific BaseError -> Same BaseError
+    /// </summary>
+    public static Maybe<TValue, TError> Then<TValue, TError>(
+        this in Maybe<TValue, TError> maybe,
+        Func<TValue, Maybe<TValue, TError>> func)
+        where TError : BaseError, new() 
+    {
+        return maybe.Then<TValue, TError, TValue, TError>(func);
+    }
+
+    /// <summary>
     /// Sync -> Async | Specific BaseError -> Specific BaseError
     /// </summary>
     public static async Task<Maybe<TNewValue, TNewError>> ThenAsync<TValue, TError, TNewValue, TNewError>(
@@ -51,6 +62,17 @@ public static partial class MaybeExtensions
         else {
             return Maybe<TNewValue, TNewError>.None(CreateErrorFrom<TNewError>(maybe.ErrorOrThrow()));
         }
+    }
+
+    /// <summary>
+    /// Sync -> Async | Specific BaseError -> Same BaseError
+    /// </summary>
+    public static Task<Maybe<TValue, TError>> ThenAsync<TValue, TError>(
+        this Maybe<TValue, TError> maybe,
+        Func<TValue, Task<Maybe<TValue, TError>>> funcAsync)
+        where TError : BaseError, new()
+    {
+        return maybe.ThenAsync<TValue, TError, TValue, TError>(funcAsync);
     }
 
     #endregion
@@ -70,6 +92,17 @@ public static partial class MaybeExtensions
     }
 
     /// <summary>
+    /// Async -> Sync | Specific BaseError -> Same BaseError
+    /// </summary>
+    public static Task<Maybe<TValue, TError>> Then<TValue, TError>(
+        this Task<Maybe<TValue, TError>> maybeTask,
+        Func<TValue, Maybe<TValue, TError>> func)
+        where TError : BaseError, new()
+    {
+        return maybeTask.Then<TValue, TError, TValue, TError>(func);
+    }
+
+    /// <summary>
     /// Async -> Async | Specific BaseError -> Specific BaseError
     /// </summary>
     public static async Task<Maybe<TNewValue, TNewError>> ThenAsync<TValue, TError, TNewValue, TNewError>(
@@ -79,6 +112,17 @@ public static partial class MaybeExtensions
     {
         var maybe = await maybeTask.ConfigureAwait(false);
         return await maybe.ThenAsync(funcAsync).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Async -> Async | Specific BaseError -> Same BaseError
+    /// </summary>
+    public static Task<Maybe<TValue, TError>> ThenAsync<TValue, TError>(
+        this Task<Maybe<TValue, TError>> maybeTask,
+        Func<TValue, Task<Maybe<TValue, TError>>> funcAsync)
+        where TError : BaseError, new()
+    {
+        return maybeTask.ThenAsync<TValue, TError, TValue, TError>(funcAsync);
     }
 
     #endregion

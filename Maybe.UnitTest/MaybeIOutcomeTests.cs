@@ -62,7 +62,7 @@ public class MaybeIOutcomeTests
         // Act
         var result = await maybeTask
             .Select(outcome => outcome.RequestId)
-            .Then(requestId => (Maybe<string, TestCustomError>)$"Processed: {requestId}");
+            .Then(requestId => $"Processed: {requestId}");
 
         // Assert
         Assert.True(result.IsSuccess);
