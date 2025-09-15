@@ -30,7 +30,8 @@ public class MaybeExtensions_Else_Tests
         var result = maybe.Else(FallbackUser);
 
         // Assert
-        result.Should().Be(SuccessUser);
+        result.IsSuccess.Should().BeTrue();
+        result.ValueOrThrow().Should().Be(SuccessUser);
     }
 
     [Fact]
@@ -43,7 +44,8 @@ public class MaybeExtensions_Else_Tests
         var result = maybe.Else(FallbackUser);
 
         // Assert
-        result.Should().Be(FallbackUser);
+        result.IsSuccess.Should().BeTrue();
+        result.ValueOrThrow().Should().Be(FallbackUser);
     }
 
     [Fact]
@@ -58,7 +60,8 @@ public class MaybeExtensions_Else_Tests
         var result = maybe.Else(fallbackFunc);
 
         // Assert
-        result.Should().Be(SuccessUser);
+        result.IsSuccess.Should().BeTrue();
+        result.ValueOrThrow().Should().Be(SuccessUser);
         wasCalled.Should().BeFalse();
     }
 
@@ -74,7 +77,8 @@ public class MaybeExtensions_Else_Tests
         var result = maybe.Else(fallbackFunc);
 
         // Assert
-        result.Should().Be(FallbackUser);
+        result.IsSuccess.Should().BeTrue();
+        result.ValueOrThrow().Should().Be(FallbackUser);
         wasCalled.Should().BeTrue();
     }
 
@@ -91,8 +95,10 @@ public class MaybeExtensions_Else_Tests
         var resultWithFunc = await maybeTask.Else(e => FallbackUser);
 
         // Assert
-        resultWithValue.Should().Be(SuccessUser);
-        resultWithFunc.Should().Be(SuccessUser);
+        resultWithValue.IsSuccess.Should().BeTrue();
+        resultWithValue.ValueOrThrow().Should().Be(SuccessUser);
+        resultWithFunc.IsSuccess.Should().BeTrue();
+        resultWithFunc.ValueOrThrow().Should().Be(SuccessUser);
     }
 
     [Fact]
@@ -106,8 +112,10 @@ public class MaybeExtensions_Else_Tests
         var resultWithFunc = await maybeTask.Else(e => FallbackUser);
 
         // Assert
-        resultWithValue.Should().Be(FallbackUser);
-        resultWithFunc.Should().Be(FallbackUser);
+        resultWithValue.IsSuccess.Should().BeTrue();
+        resultWithValue.ValueOrThrow().Should().Be(FallbackUser);
+        resultWithFunc.IsSuccess.Should().BeTrue();
+        resultWithFunc.ValueOrThrow().Should().Be(FallbackUser);
     }
 
     // --- ElseAsync (Async Fallback) ---
@@ -124,7 +132,8 @@ public class MaybeExtensions_Else_Tests
         var result = await maybe.ElseAsync(fallbackFunc);
 
         // Assert
-        result.Should().Be(SuccessUser);
+        result.IsSuccess.Should().BeTrue();
+        result.ValueOrThrow().Should().Be(SuccessUser);
         wasCalled.Should().BeFalse();
     }
 
@@ -140,7 +149,8 @@ public class MaybeExtensions_Else_Tests
         var result = await maybe.ElseAsync(fallbackFunc);
 
         // Assert
-        result.Should().Be(FallbackUser);
+        result.IsSuccess.Should().BeTrue();
+        result.ValueOrThrow().Should().Be(FallbackUser);
         wasCalled.Should().BeTrue();
     }
 
@@ -158,7 +168,8 @@ public class MaybeExtensions_Else_Tests
         var result = await maybeTask.ElseAsync(fallbackFunc);
 
         // Assert
-        result.Should().Be(SuccessUser);
+        result.IsSuccess.Should().BeTrue();
+        result.ValueOrThrow().Should().Be(SuccessUser);
         wasCalled.Should().BeFalse();
     }
 
@@ -174,7 +185,8 @@ public class MaybeExtensions_Else_Tests
         var result = await maybeTask.ElseAsync(fallbackFunc);
 
         // Assert
-        result.Should().Be(FallbackUser);
+        result.IsSuccess.Should().BeTrue();
+        result.ValueOrThrow().Should().Be(FallbackUser);
         wasCalled.Should().BeTrue();
     }
 }
