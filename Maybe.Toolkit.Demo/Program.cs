@@ -123,18 +123,93 @@ public static class Program
 
         using var client = new HttpClient();
 
-        // Demo with invalid URL to show error handling
-        var result = await client.TryGetAsync("invalid-url");
-        result
-            .IfSome(response => Console.WriteLine($"✓ Response received: {response.StatusCode}"))
-            .ElseDo(error => Console.WriteLine($"✓ Expected error: HTTP request failed"));
+        // Demo basic HTTP verbs with error handling
+        Console.WriteLine("Basic HTTP Methods:");
+        
+        // GET Demo with invalid URL to show error handling
+        var getResult = await client.TryGetAsync("invalid-url");
+        getResult
+            .IfSome(response => Console.WriteLine($"✓ GET Response received: {response.StatusCode}"))
+            .ElseDo(error => Console.WriteLine($"✓ Expected GET error: HTTP request failed"));
 
+        // POST Demo with null content
+        var postResult = await client.TryPostAsync("invalid-url", null);
+        postResult
+            .IfSome(response => Console.WriteLine($"✓ POST Response received: {response.StatusCode}"))
+            .ElseDo(error => Console.WriteLine($"✓ Expected POST error: HTTP request failed"));
+
+        // PUT Demo
+        var putResult = await client.TryPutAsync("invalid-url", null);
+        putResult
+            .IfSome(response => Console.WriteLine($"✓ PUT Response received: {response.StatusCode}"))
+            .ElseDo(error => Console.WriteLine($"✓ Expected PUT error: HTTP request failed"));
+
+        // PATCH Demo
+        var patchResult = await client.TryPatchAsync("invalid-url", null);
+        patchResult
+            .IfSome(response => Console.WriteLine($"✓ PATCH Response received: {response.StatusCode}"))
+            .ElseDo(error => Console.WriteLine($"✓ Expected PATCH error: HTTP request failed"));
+
+        // DELETE Demo
+        var deleteResult = await client.TryDeleteAsync("invalid-url");
+        deleteResult
+            .IfSome(response => Console.WriteLine($"✓ DELETE Response received: {response.StatusCode}"))
+            .ElseDo(error => Console.WriteLine($"✓ Expected DELETE error: HTTP request failed"));
+
+        Console.WriteLine("\nJSON Integration:");
+
+        // JSON GET Demo
+        var jsonGetResult = await client.TryGetJsonAsync<PersonDto>("invalid-url");
+        jsonGetResult
+            .IfSome(person => Console.WriteLine($"✓ Received person: {person.Name}"))
+            .ElseDo(error => 
+            {
+                if (error.IsHttpError)
+                    Console.WriteLine($"✓ Expected HTTP error in JSON GET: {error.HttpError?.Message}");
+                else if (error.IsJsonError)
+                    Console.WriteLine($"✓ Expected JSON error in JSON GET: {error.JsonError?.Message}");
+            });
+
+        // JSON POST Demo
+        var samplePerson = new PersonDto { Name = "John Doe", Age = 30, Email = "john@example.com" };
+        var jsonPostResult = await client.TryPostJsonAsync("invalid-url", samplePerson);
+        jsonPostResult
+            .IfSome(response => Console.WriteLine($"✓ JSON POST Response: {response.StatusCode}"))
+            .ElseDo(error => 
+            {
+                if (error.IsHttpError)
+                    Console.WriteLine($"✓ Expected HTTP error in JSON POST: Request failed");
+                else if (error.IsJsonError)
+                    Console.WriteLine($"✓ Expected JSON error in JSON POST: {error.JsonError?.Message}");
+            });
+
+        // JSON POST with response Demo
+        var jsonPostWithResponseResult = await client.TryPostJsonAsync<PersonDto, PersonDto>("invalid-url", samplePerson);
+        jsonPostWithResponseResult
+            .IfSome(person => Console.WriteLine($"✓ Received response person: {person.Name}"))
+            .ElseDo(error => 
+            {
+                if (error.IsHttpError)
+                    Console.WriteLine($"✓ Expected HTTP error in JSON POST with response");
+                else if (error.IsJsonError)
+                    Console.WriteLine($"✓ Expected JSON error in JSON POST with response");
+            });
+
+        Console.WriteLine("\nNull Client Demo:");
         // Demo with null client
         HttpClient? nullClient = null;
-        var nullResult = await nullClient!.TryGetAsync("http://example.com");
+        var nullResult = await nullClient!.TryGetJsonAsync<PersonDto>("http://example.com");
         nullResult
             .IfSome(_ => Console.WriteLine("✗ This shouldn't happen"))
             .ElseDo(error => Console.WriteLine($"✓ Expected error: HttpClient cannot be null"));
+    }
+
+    // Sample DTO for JSON demos
+    public class PersonDto
+    {
+        public string Name { get; set; } = string.Empty;
+        public int Age { get; set; }
+        public string Email { get; set; } = string.Empty;
     }
 
     private static void DemoCollectionToolkit()
