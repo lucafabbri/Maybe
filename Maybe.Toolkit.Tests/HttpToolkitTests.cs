@@ -709,4 +709,57 @@ public class HttpToolkitTests
         public string Name { get; set; } = string.Empty;
         public int Value { get; set; }
     }
+
+    #region HttpJsonError tests
+
+    [Fact]
+    public void HttpJsonError_DefaultConstructor_SetsDefaults()
+    {
+        // Act
+        var error = new HttpJsonError();
+
+        // Assert
+        error.Should().NotBeNull();
+        error.IsHttpError.Should().BeFalse();
+        error.IsJsonError.Should().BeFalse();
+        error.HttpError.Should().BeNull();
+        error.JsonError.Should().BeNull();
+        error.UnderlyingError.Should().BeNull();
+    }
+
+    [Fact]
+    public void HttpJsonError_WithHttpError_SetsPropertiesCorrectly()
+    {
+        // Arrange
+        var httpError = new HttpError(new HttpRequestException("test"), "http://test.com", null, "Test HTTP error");
+
+        // Act
+        var error = new HttpJsonError(httpError);
+
+        // Assert
+        error.IsHttpError.Should().BeTrue();
+        error.IsJsonError.Should().BeFalse();
+        error.HttpError.Should().Be(httpError);
+        error.JsonError.Should().BeNull();
+        error.UnderlyingError.Should().Be(httpError);
+    }
+
+    [Fact]
+    public void HttpJsonError_WithJsonError_SetsPropertiesCorrectly()
+    {
+        // Arrange
+        var jsonError = new JsonError(new System.Text.Json.JsonException("test"), "Test JSON error");
+
+        // Act
+        var error = new HttpJsonError(jsonError);
+
+        // Assert
+        error.IsHttpError.Should().BeFalse();
+        error.IsJsonError.Should().BeTrue();
+        error.HttpError.Should().BeNull();
+        error.JsonError.Should().Be(jsonError);
+        error.UnderlyingError.Should().Be(jsonError);
+    }
+
+    #endregion
 }

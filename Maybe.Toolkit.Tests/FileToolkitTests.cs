@@ -198,4 +198,153 @@ public class FileToolkitTests
         error.Should().BeOfType<FileError>();
         error.OriginalException.Should().BeOfType<ArgumentNullException>();
     }
+
+    [Fact]
+    public void TryReadAllBytes_WithNonExistentFile_ReturnsFileError()
+    {
+        // Arrange
+        var nonExistentFile = Path.Combine(_tempDirectory, $"nonexistent_{Guid.NewGuid()}.bin");
+
+        // Act
+        var result = FileToolkit.TryReadAllBytes(nonExistentFile);
+
+        // Assert
+        result.IsError.Should().BeTrue();
+        var error = result.ErrorOrThrow();
+        error.Should().BeOfType<FileError>();
+        error.Code.Should().Be("File.IOError");
+        error.FilePath.Should().Be(nonExistentFile);
+        error.OriginalException.Should().BeOfType<FileNotFoundException>();
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData(null)]
+    public void TryReadAllBytes_WithInvalidPath_ReturnsFileError(string? invalidPath)
+    {
+        // Act
+        var result = FileToolkit.TryReadAllBytes(invalidPath!);
+
+        // Assert
+        result.IsError.Should().BeTrue();
+        var error = result.ErrorOrThrow();
+        error.Should().BeOfType<FileError>();
+        error.FilePath.Should().Be(invalidPath);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData(null)]
+    public void TryWriteAllText_WithInvalidPath_ReturnsFileError(string? invalidPath)
+    {
+        // Act
+        var result = FileToolkit.TryWriteAllText(invalidPath!, "content");
+
+        // Assert
+        result.IsError.Should().BeTrue();
+        var error = result.ErrorOrThrow();
+        error.Should().BeOfType<FileError>();
+        error.FilePath.Should().Be(invalidPath);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData(null)]
+    public void TryWriteAllBytes_WithInvalidPath_ReturnsFileError(string? invalidPath)
+    {
+        // Act
+        var result = FileToolkit.TryWriteAllBytes(invalidPath!, new byte[] { 1, 2, 3 });
+
+        // Assert
+        result.IsError.Should().BeTrue();
+        var error = result.ErrorOrThrow();
+        error.Should().BeOfType<FileError>();
+        error.FilePath.Should().Be(invalidPath);
+    }
+
+    [Fact]
+    public void TryWriteAllBytes_WithNullBytes_ReturnsFileError()
+    {
+        // Arrange
+        var tempFile = Path.Combine(_tempDirectory, $"test_{Guid.NewGuid()}.bin");
+
+        // Act
+        var result = FileToolkit.TryWriteAllBytes(tempFile, null!);
+
+        // Assert
+        result.IsError.Should().BeTrue();
+        var error = result.ErrorOrThrow();
+        error.Should().BeOfType<FileError>();
+        error.OriginalException.Should().BeOfType<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void TryWriteAllText_WithReadOnlyFile_ReturnsFileError()
+    {
+        // This test checks unauthorized access scenarios
+        var tempFile = Path.Combine(_tempDirectory, $"readonly_{Guid.NewGuid()}.txt");
+        
+        try
+        {
+            File.WriteAllText(tempFile, "initial content");
+            File.SetAttributes(tempFile, FileAttributes.ReadOnly);
+
+            // Act
+            var result = FileToolkit.TryWriteAllText(tempFile, "new content");
+
+            // Assert
+            result.IsError.Should().BeTrue();
+            var error = result.ErrorOrThrow();
+            error.Should().BeOfType<FileError>();
+            error.OriginalException.Should().BeOfType<UnauthorizedAccessException>();
+        }
+        finally
+        {
+            if (File.Exists(tempFile))
+            {
+                File.SetAttributes(tempFile, FileAttributes.Normal);
+                File.Delete(tempFile);
+            }
+        }
+    }
+
+    [Fact]
+    public void TryReadAllText_WithDirectoryPath_ReturnsFileError()
+    {
+        // Arrange - use a directory path instead of file path
+        var directoryPath = _tempDirectory;
+
+        // Act
+        var result = FileToolkit.TryReadAllText(directoryPath);
+
+        // Assert
+        result.IsError.Should().BeTrue();
+        var error = result.ErrorOrThrow();
+        error.Should().BeOfType<FileError>();
+        error.FilePath.Should().Be(directoryPath);
+    }
+
+    [Fact]
+    public void Unit_Value_IsNotNull()
+    {
+        // Test the Unit struct that's used in write operations
+        var unit = Unit.Value;
+        unit.Should().NotBeNull();
+        
+        // Test that two Unit values are equal
+        var unit2 = Unit.Value;
+        unit.Should().Be(unit2);
+    }
+
+    [Fact]
+    public void Unit_ToString_ReturnsExpectedValue()
+    {
+        // Test Unit.ToString() method
+        var unit = Unit.Value;
+        var stringValue = unit.ToString();
+        stringValue.Should().NotBeNull();
+    }
 }
