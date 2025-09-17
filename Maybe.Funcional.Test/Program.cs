@@ -129,7 +129,7 @@ public static class Program
 		// --- Else/ElseAsync Tests ---
 		Console.WriteLine("\n--- 5. Else (Sync Fallback) ---");
 		var res5 = Api.FindUserInDb(userId).Select(u => u.Name).Else("DefaultUser");
-		PrintOutcome(res5, GetExpected(userId, "Alice", "Bob", "DefaultUser"));
+		PrintResult(res5, GetExpected(userId, "Alice", "Bob", "DefaultUser"));
 
 		// --- If/IfSome Tests ---
 		Console.WriteLine("\n--- 6. IfSome (Sync Action) ---");

@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="2.2.0"></a>
+## [2.2.0](https://www.github.com/lucafabbri/Maybe/releases/tag/v2.2.0) (2025-09-17)
+
+### Features
+
+* adds error return to Else ([1b8a7ef](https://www.github.com/lucafabbri/Maybe/commit/1b8a7ef34992e2f76cf34f5124c5e78fed7c0988))
+
+### Bug Fixes
+
+* corrects units tests ([bac8d13](https://www.github.com/lucafabbri/Maybe/commit/bac8d13ac5491068a6775c98cfd181b207a5b815))
+
 <a name="2.1.3"></a>
 ## [2.1.3](https://www.github.com/lucafabbri/Maybe/releases/tag/v2.1.3) (2025-09-15)
 
