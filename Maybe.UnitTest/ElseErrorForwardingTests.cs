@@ -9,7 +9,7 @@ namespace Maybe.UnitTest;
 public class ElseErrorForwardingTests
 {
     // Dummy error type used in tests. Must satisfy the "new()" constraint.
-    private sealed class DummyError : BaseError
+    private sealed class DummyError : Error
     {
         public string? Info { get; }
         public DummyError() { }
@@ -19,7 +19,7 @@ public class ElseErrorForwardingTests
     [Fact]
     public void Else_WithForwardedError_ReturnsSuccess_WhenSuccess()
     {
-        var success = Maybe<int, DummyError>.Success(42);
+        var success = 42.MightBe<int, DummyError>();
 
         var result = success.Else(new DummyError("fwd"));
 
@@ -30,7 +30,7 @@ public class ElseErrorForwardingTests
     [Fact]
     public void Else_WithForwardedError_ReplacesError_WhenError()
     {
-        var original = Maybe<int, DummyError>.Error(new DummyError("orig"));
+        var original = new DummyError("orig").MightBe<bool, DummyError>();
 
         var fwd = new DummyError("fwd");
         var result = original.Else(fwd);
@@ -42,7 +42,7 @@ public class ElseErrorForwardingTests
     [Fact]
     public void Else_WithValueFallback_ReturnsFallback_WhenError()
     {
-        var original = Maybe<string, DummyError>.Error(new DummyError("orig"));
+        var original = new DummyError("orig").MightBe<string, DummyError>();
 
         var result = original.Else("fallback");
 
@@ -60,12 +60,12 @@ public class ElseErrorForwardingTests
             return $"wrapped:" + e.Info;
         };
 
-        var success = Maybe<string, DummyError>.Success("ok");
+        var success = "ok".MightBe<string, DummyError>();
         success.Else(func).IsSuccess.Should().BeTrue();
         invoked.Should().BeFalse();
 
         invoked = false;
-        var error = Maybe<string, DummyError>.Error(new DummyError("orig"));
+        var error = new DummyError("orig").MightBe<string, DummyError>();
         var result = error.Else(func);
         invoked.Should().BeTrue();
         result.IsSuccess.Should().BeTrue();
@@ -82,13 +82,13 @@ public class ElseErrorForwardingTests
             return new DummyError($"x:" + e.Info);
         };
 
-        var success = Maybe<int, DummyError>.Success(1);
+        var success = 1.MightBe<int, DummyError>();
         var s = success.Else(func);
         s.IsSuccess.Should().BeTrue();
         invoked.Should().BeFalse();
 
         invoked = false;
-        var err = Maybe<int, DummyError>.Error(new DummyError("orig"));
+        var err = new DummyError("orig").MightBe<int, DummyError>();
         var r = err.Else(func);
         invoked.Should().BeTrue();
         r.IsError.Should().BeTrue();
@@ -98,7 +98,7 @@ public class ElseErrorForwardingTests
     [Fact]
     public void Else_ValueFunc_Null_Throws()
     {
-        var err = Maybe<int, DummyError>.Error(new DummyError("e"));
+        var err = new DummyError("e").MightBe<int, DummyError>();
         Action act = () => err.Else((Func<DummyError, int>)null!);
         act.Should().Throw<ArgumentNullException>().WithParameterName("fallbackFunc");
     }
@@ -106,7 +106,7 @@ public class ElseErrorForwardingTests
     [Fact]
     public void Else_ErrorFunc_Null_Throws()
     {
-        var err = Maybe<int, DummyError>.Error(new DummyError("e"));
+        var err = new DummyError("e").MightBe<int, DummyError>();
         Action act = () => err.Else((Func<DummyError, DummyError>)null!);
         act.Should().Throw<ArgumentNullException>().WithParameterName("fallbackErrorFunc");
     }
@@ -114,7 +114,7 @@ public class ElseErrorForwardingTests
     [Fact]
     public async Task Else_Task_WithForwardedError_ReplacesError_WhenError()
     {
-        Task<Maybe<int, DummyError>> task = Task.FromResult(Maybe<int, DummyError>.Error(new DummyError("orig")));
+        Task<Maybe<int, DummyError>> task = Task.FromResult(new DummyError("orig").MightBe<int, DummyError>());
 
         var forwarded = new DummyError("fwd");
         var result = await task.Else(forwarded);
@@ -133,12 +133,12 @@ public class ElseErrorForwardingTests
             return "val";
         };
 
-        var sTask = Task.FromResult(Maybe<string, DummyError>.Success("ok"));
+        var sTask = Task.FromResult("ok".MightBe<string, DummyError>());
         (await sTask.Else(func)).IsSuccess.Should().BeTrue();
         invoked.Should().BeFalse();
 
         invoked = false;
-        var eTask = Task.FromResult(Maybe<string, DummyError>.Error(new DummyError("e")));
+        var eTask = Task.FromResult(new DummyError("e").MightBe<string, DummyError>());
         var r = await eTask.Else(func);
         invoked.Should().BeTrue();
         r.IsSuccess.Should().BeTrue();
@@ -148,7 +148,7 @@ public class ElseErrorForwardingTests
     [Fact]
     public async Task ElseAsync_WithAsyncValueFunc_UsesTransformedValue_WhenError()
     {
-        var maybe = Maybe<int, DummyError>.Error(new DummyError("orig"));
+        var maybe = new DummyError("orig").MightBe<int, DummyError>();
 
         var result = await maybe.ElseAsync(async e =>
         {
@@ -163,7 +163,7 @@ public class ElseErrorForwardingTests
     [Fact]
     public async Task ElseAsync_WithAsyncErrorFunc_UsesTransformedError_WhenError()
     {
-        var maybe = Maybe<int, DummyError>.Error(new DummyError("orig"));
+        var maybe = new DummyError("orig").MightBe<int, DummyError>();
 
         var result = await maybe.ElseAsync(async e =>
         {
@@ -178,7 +178,7 @@ public class ElseErrorForwardingTests
     [Fact]
     public async Task ElseAsync_Task_WithAsyncErrorFunc_UsesTransformedError_WhenError()
     {
-        var task = Task.FromResult(Maybe<int, DummyError>.Error(new DummyError("orig")));
+        var task = Task.FromResult(new DummyError("orig").MightBe<int, DummyError>());
 
         var result = await task.ElseAsync(async e =>
         {
@@ -193,7 +193,7 @@ public class ElseErrorForwardingTests
     [Fact]
     public async Task ElseAsync_ValueFunc_Null_Throws()
     {
-        var err = Maybe<int, DummyError>.Error(new DummyError("e"));
+        var err = new DummyError("e").MightBe<int, DummyError>();
         Func<DummyError, Task<int>> f = null!;
         var act = async () => await err.ElseAsync(f);
         await act.Should().ThrowAsync<ArgumentNullException>().WithParameterName("fallbackAsync");
@@ -202,7 +202,7 @@ public class ElseErrorForwardingTests
     [Fact]
     public async Task ElseAsync_ErrorFunc_Null_Throws()
     {
-        var err = Maybe<int, DummyError>.Error(new DummyError("e"));
+        var err = new DummyError("e").MightBe<int, DummyError>();
         Func<DummyError, Task<DummyError>> f = null!;
         var act = async () => await err.ElseAsync(f);
         await act.Should().ThrowAsync<ArgumentNullException>().WithParameterName("forwardedErrorAsync");
