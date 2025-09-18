@@ -14,6 +14,11 @@ public class AuthorizationError : Error
         Action = string.Empty;
     }
 
+    public AuthorizationError(Error error) : this()
+    {
+        SetInnerError(error);
+    }
+
     /// <summary>
     /// Initializes a new instance of the <see cref="AuthorizationError"/> class.
     /// </summary>

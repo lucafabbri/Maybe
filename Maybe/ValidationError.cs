@@ -13,6 +13,11 @@ public class ValidationError : Error
         FieldErrors = [];
     }
 
+    public ValidationError(Error error) : this([])
+    {
+        SetInnerError(error);
+    }
+
     /// <summary>
     /// Initializes a new instance of the <see cref="ValidationError"/> class.
     /// </summary>

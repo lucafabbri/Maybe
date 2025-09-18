@@ -13,6 +13,11 @@ public class FailureError : Error
         ContextData = [];
     }
 
+    public FailureError(Error error) : this()
+    {
+        SetInnerError(error);
+    }
+
     /// <summary>
     /// Initializes a new instance of the <see cref="FailureError"/> class.
     /// </summary>

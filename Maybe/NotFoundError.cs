@@ -14,6 +14,11 @@ public class NotFoundError : Error
         Identifier = string.Empty;
     }
 
+    public NotFoundError(Error error) : this()
+    {
+        SetInnerError(error);
+    }
+
     /// <summary>
     /// Initializes a new instance of the <see cref="NotFoundError"/> class.
     /// </summary>

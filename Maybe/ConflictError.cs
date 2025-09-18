@@ -15,6 +15,11 @@ public class ConflictError : Error
         ConflictingParameters = new Dictionary<string, object>();
     }
 
+    public ConflictError(Error error) : this()
+    {
+        SetInnerError(error);
+    }
+
     /// <summary>
     /// Initializes a new instance of the <see cref="ConflictError"/> class.
     /// </summary>

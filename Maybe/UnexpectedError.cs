@@ -14,6 +14,11 @@ public class UnexpectedError : Error
     {
     }
 
+    public UnexpectedError(Error error) : this()
+    {
+        SetInnerError(error);
+    }   
+
     /// <summary>
     /// Initializes a new instance of the <see cref="UnexpectedError"/> class.
     /// </summary>
