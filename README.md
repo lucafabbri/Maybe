@@ -4,7 +4,7 @@
 
 # Maybe
 
-[![NuGet](https://img.shields.io/nuget/v/Maybe.svg)](https://www.nuget.org/packages/Maybe)
+[![NuGet](https://img.shields.io/nuget/v/FluentCoder.Maybe.svg)](https://www.nuget.org/packages/FluentCode.Maybe)
 [![Build](https://github.com/lucafabbri/maybe/actions/workflows/main.yml/badge.svg)](https://github.com/lucafabbri/maybe/actions/workflows/main.yml) 
 [![codecov](https://codecov.io/gh/lucafabbri/maybe/branch/main/graph/badge.svg)](https://codecov.io/gh/lucafabbri/maybe)
 
