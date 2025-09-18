@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="2.2.3"></a>
+## [2.2.3](https://www.github.com/lucafabbri/Maybe/releases/tag/v2.2.3) (2025-09-18)
+
+### Bug Fixes
+
+* adds Error constructor to additional error types ([22ab6ab](https://www.github.com/lucafabbri/Maybe/commit/22ab6ab343515acb42858e697fd7babc9cff41d4))
+
 <a name="2.2.2"></a>
 ## [2.2.2](https://www.github.com/lucafabbri/Maybe/releases/tag/v2.2.2) (2025-09-17)
 
